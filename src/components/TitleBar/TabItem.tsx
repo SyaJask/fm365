@@ -17,6 +17,9 @@ export const TabItem = ({ tab }: TabItemProps) => {
       <button className="tab-close">
           ×
       </button>
+      <button className="tab-add">
+          +
+      </button>
     </div>
   )
 }

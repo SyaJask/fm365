@@ -6,9 +6,6 @@ import { TabItem } from ".";
 
 interface TabStripProps {
     tabs: Tab[];
-    // onSelect(id:string):void
-    // onClose(id:string):void
-    // onCreate():void
 }
 
 export const  TabStrip = ({ tabs }: TabStripProps) => {

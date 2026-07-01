@@ -6,8 +6,6 @@ import heroImg from './assets/hero.png'
 import './App.css'
 import './components/ExplorerWindow/ExplorerWindow.css'
 import { ExplorerWindow } from './components/ExplorerWindow'
-import { TitleBar } from './components/TitleBar'
-import type { Tab } from './types'
 
 function App() {
   // const [count, setCount] = useState(0)

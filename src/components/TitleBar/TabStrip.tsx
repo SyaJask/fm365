@@ -15,6 +15,9 @@ export const  TabStrip = ({ tabs }: TabStripProps) => {
         <TabItem key={tab.id} tab={tab}
         />
       ))}
+      <button className="tab-add">
+        +
+      </button>
     </div>
   )
 }

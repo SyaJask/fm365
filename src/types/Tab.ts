@@ -13,7 +13,7 @@
 export interface Tab {
   id: string
   title: string
-//   path: string
+  path: string
   active: boolean
 //   pinned?: boolean
 //   loading?: boolean

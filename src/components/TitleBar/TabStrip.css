@@ -1,0 +1,10 @@
+/*
+ TabStrip.css
+ 用途: 作为选项卡条的样式文件，定义选项卡条的布局和样式。
+*/
+.tab-strip {
+  flex: 1;
+
+  display: flex;
+  align-items: stretch;
+}

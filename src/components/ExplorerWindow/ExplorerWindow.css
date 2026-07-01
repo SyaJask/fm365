@@ -1,0 +1,13 @@
+/*
+ ExplorerWindow.css
+ 用途: 作为资源管理器窗口的样式文件，定义了窗口的布局和背景颜色。
+*/
+.explorer-window {
+  width: 100%;
+  height: 100vh;
+  
+  display: flex;
+  flex-direction: column;
+  
+  background: #ffffff;
+}

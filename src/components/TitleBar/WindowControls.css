@@ -1,0 +1,14 @@
+/*
+ WindowControls.css
+ 用途: 作为窗口控制按钮的样式文件，定义窗口控制按钮的布局和样式。
+*/
+.window-controls {
+  
+  width: 138px;
+  
+  display: flex;
+  
+  justify-content: flex-end;
+  
+  align-items: stretch;
+}

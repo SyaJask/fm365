@@ -9,11 +9,13 @@ export const ExplorerWindow = () => {
     {
       id: "1",
       title: "components",
+      path: "D:/ai2all/src/components",
       active: true,
     },
     {
       id: "2",
       title: "Downloads",
+      path: "D:/ai2all/Downloads",
       active: false,
     },
   ]

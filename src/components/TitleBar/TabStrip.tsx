@@ -3,6 +3,7 @@
 import "./TabStrip.css";
 import type { Tab } from "../../types";
 import { TabItem } from ".";
+import { tabStore } from "../../stores/tabStore";
 
 interface TabStripProps {
     tabs: Tab[];
@@ -15,7 +16,15 @@ export const  TabStrip = ({ tabs }: TabStripProps) => {
         <TabItem key={tab.id} tab={tab}
         />
       ))}
-      <button className="tab-add">
+      <button
+      className="tab-add"
+      onClick={() =>
+        tabStore.open({
+          id: crypto.randomUUID(),
+          title: "New Tab",
+          path: "D:/",
+        })
+      }>
         +
       </button>
     </div>

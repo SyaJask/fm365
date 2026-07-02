@@ -5,7 +5,7 @@ import type { Tab } from "../../types";
 
 interface TabItemProps {
     tab: Tab;
-}
+};
 
 export const TabItem = ({ tab }: TabItemProps) => {
   return (
@@ -18,5 +18,5 @@ export const TabItem = ({ tab }: TabItemProps) => {
           ×
       </button>
     </div>
-  )
-}
+  );
+};

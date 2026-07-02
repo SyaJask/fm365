@@ -6,12 +6,12 @@ import type { Tab } from "../../types";
 
 interface TitleBarProps {
   tabs: Tab[];
-}
+};
 
 export const TitleBar = ({ tabs }: TitleBarProps) => {
   return (
     <header className="title-bar">
       <TabStrip tabs={tabs} />
     </header>
-  )
-}
+  );
+};

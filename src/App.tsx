@@ -1,11 +1,8 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+// import { useState } from 'react';
 
-import './App.css'
-import './components/ExplorerWindow/ExplorerWindow.css'
-import { ExplorerWindow } from './components/ExplorerWindow'
+import './App.css';
+import './components/ExplorerWindow/ExplorerWindow.css';
+import { ExplorerWindow } from './components/ExplorerWindow';
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -14,7 +11,7 @@ function App() {
     <>
     <ExplorerWindow></ExplorerWindow>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

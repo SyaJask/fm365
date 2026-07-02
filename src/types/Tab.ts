@@ -1,14 +1,5 @@
 //Tab.ts
-
-
-// const tabs: Tab[] = [
-//   {
-//     id: "1",
-//     title: "components",
-//     path: "D:/ai2all/src/components",
-//     active: true,
-//   },
-// ]
+// 用途: 定义选项卡的类型。
 
 export interface Tab {
   id: string
@@ -18,5 +9,5 @@ export interface Tab {
 //   pinned?: boolean
 //   loading?: boolean
 //   icon?: React.ReactNode
-}
+};
 

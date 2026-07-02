@@ -6,7 +6,7 @@ import { TabItem } from ".";
 
 interface TabStripProps {
     tabs: Tab[];
-}
+};
 
 export const  TabStrip = ({ tabs }: TabStripProps) => {
   return (
@@ -19,5 +19,5 @@ export const  TabStrip = ({ tabs }: TabStripProps) => {
         +
       </button>
     </div>
-  )
-}
+  );
+};

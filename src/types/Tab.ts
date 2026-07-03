@@ -1,5 +1,5 @@
-//Tab.ts
-// 用途: 定义选项卡的类型。
+// Tab.ts
+// 用途: 定义选项卡的类型;
 
 export interface Tab {
   id: string

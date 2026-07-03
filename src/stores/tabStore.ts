@@ -1,5 +1,5 @@
 // stores/tabStore.ts
-// 用途: 管理选项卡的状态和操作。
+// 用途: 管理选项卡的状态和操作;
 import { useSyncExternalStore } from "react";
 import type { Tab } from "../types/Tab";
 
@@ -32,22 +32,15 @@ class TabStore {
   constructor() {
     this.open({
       id: "1",
-      title: "components",
+      title: "主页",
       path: "D:/ai2all/src/components",
     });
-    this.open({
-      id: "2",
-      title: "Downloads",
-      path: "D:/ai2all/Downloads",
-    })
   }
 
   open(tab: Omit<Tab, "active">) {
-    // this.tabs.forEach((t) => (t.active = false));
     this.tabs = this.tabs.map((t) => ({...t, active: false }));
 
     const newTab: Tab = { ...tab, active: true };
-    // this.tabs.push(newTab);
     this.tabs = [...this.tabs, newTab];
     this.activeId = newTab.id;
     this.notify();
@@ -58,21 +51,17 @@ class TabStore {
     if (idx === -1) return;
 
     const wasActive = this.tabs[idx].active;
-    // this.tabs.splice(idx, 1);
     this.tabs = [
       ...this.tabs.slice(0,idx),
       ...this.tabs.slice(idx + 1),
     ];
 
     if (wasActive && this.tabs.length > 0) {
-      // const next = this.tabs[idx] ?? this.tabs[idx - 1];
       const nextIdx = idx < this.tabs.length ? idx : idx - 1;
       this.tabs = this.tabs.map((t, i) =>
       i === nextIdx ? { ...t, active: true } : t
       );
       this.activeId = this.tabs[nextIdx].id;
-      // next.active = true;
-      // this.activeId = next.id;
     };
 
     if (this.tabs.length === 0) {
@@ -83,7 +72,6 @@ class TabStore {
   };
 
   setActive(id: string) {
-    // this.tabs.forEach((t) => (t.active = t.id === id));
     this.tabs = this.tabs.map((t) => ({ ...t, active: t.id === id }));
     this.activeId = id;
     this.notify();

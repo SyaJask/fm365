@@ -1,5 +1,5 @@
 // TitleBar.tsx
-// 用途: 作为窗口的标题栏组件，包含选项卡条和窗口控制按钮。
+// 用途: 作为窗口的标题栏组件, 包含选项卡条和窗口控制按钮;
 import "./TitleBar.css";
 import { TabStrip } from ".";
 import type { Tab } from "../../types";

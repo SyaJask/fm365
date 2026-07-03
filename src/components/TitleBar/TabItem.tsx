@@ -1,5 +1,5 @@
 // TabItem.tsx
-// 用途: 作为选项卡的单个选项卡组件，显示选项卡的标题和关闭按钮。
+// 用途: 作为选项卡的单个选项卡组件, 显示选项卡的标题和关闭按钮;
 import "./TabItem.css";
 import type { Tab } from "../../types";
 import { tabStore } from "../../stores/tabStore";

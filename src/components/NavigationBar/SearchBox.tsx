@@ -6,6 +6,12 @@ export const SearchBox = () => {
     return (
         <div className="search-box">
             <input type="text" placeholder="搜索" className="search-input" />
+                <button className="cmd-btn" title="清空">
+                    x
+                </button>
+                <button className="cmd-btn" title="清空">
+                    🔍
+                </button>
         </div>
 
     )

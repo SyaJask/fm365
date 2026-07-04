@@ -1,2 +1,2 @@
 // ExplorerWindow/index.ts
-export * from './ExplorerWindow';
+export * from "./ExplorerWindow";

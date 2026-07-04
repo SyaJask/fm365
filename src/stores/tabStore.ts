@@ -33,7 +33,7 @@ class TabStore {
     this.open({
       id: "1",
       title: "主页",
-      path: "D:/ai2all/src/components",
+      path: "D:/ai2all/fm365/src/compoents",
     });
   }
 

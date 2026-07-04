@@ -1,0 +1,9 @@
+.command-bar {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  gap: 4px;
+  border-bottom: 1px solid #e5e5e5;
+}

@@ -1,0 +1,45 @@
+/*
+ FolderTree.css
+ 用途: 左侧文件夹树导航窗格的样式;
+*/
+.folder-tree {
+  width: 220px;
+  min-width: 160px;
+  overflow-y: auto;
+  border-right: 1px solid #e5e5e5;
+  user-select: none;
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tree-node:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.tree-arrow {
+  width: 14px;
+  font-size: 10px;
+  color: #999;
+  transition: transform 0.15s;
+}
+
+.tree-arrow.expanded {
+  transform: rotate(90deg);
+}
+
+.tree-icon {
+  font-size: 14px;
+}
+
+.tree-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -2,6 +2,7 @@
 // 用途: 管理选项卡的状态和操作;
 import { useSyncExternalStore } from "react";
 import type { Tab } from "../types/Tab";
+import { root, getFilesByPath, type FileNode } from "../data/fileTree";
 
 class TabStore {
   tabs: Tab[] = [];
@@ -10,11 +11,19 @@ class TabStore {
   private listeners = new Set<() => void>();
 
   private notify() {
+    const tab = this.tabs.find((t) => t.id === this.activeId);
+    let selectedFile: FileNode | null = null;
+    if (tab && this.selectedPaths.has(this.activeId!)) {
+      const name = this.selectedPaths.get(this.activeId!)!;
+      const files = getFilesByPath(root, tab.path);
+      selectedFile = files.find((f) => f.name === name) ?? null;
+    }
     this.snapshot = {
       tabs: this.tabs,
       activeId: this.activeId,
       canGoBack: this.activeId ? this.canGoBack(this.activeId) : false,
       canGoForward: this.activeId ? this.canGoForward(this.activeId) : false,
+      selectedFile,
     };
     this.listeners.forEach((fn) => fn());
   };
@@ -24,6 +33,7 @@ class TabStore {
     activeId: string | null;
     canGoBack: boolean;
     canGoForward: boolean;
+    selectedFile: FileNode | null;
   } | null = null;
 
   private histories = new Map<string, { stack: string[]; index: number }>();
@@ -35,6 +45,8 @@ class TabStore {
     return this.histories.get(id)!;
   };
 
+  private selectedPaths = new Map<string, string>();
+  
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
@@ -42,14 +54,9 @@ class TabStore {
 
   getSnapshot = () => {
     if (!this.snapshot) {
-      this.snapshot = {
-        tabs: this.tabs,
-        activeId: this.activeId,
-        canGoBack: this.activeId ? this.canGoBack(this.activeId) : false,
-        canGoForward: this.activeId ? this.canGoForward(this.activeId) : false,
-      };
+      this.notify();
     };
-    return this.snapshot;
+    return this.snapshot!;
   };
 
   constructor() {
@@ -107,6 +114,7 @@ class TabStore {
     this.tabs = this.tabs.map((t) =>
       t.id === id ? { ...t, path, title: path.split("/").pop() ?? path } : t
     )
+    this.selectedPaths.delete(id);
     this.notify();
   };
 
@@ -118,18 +126,19 @@ class TabStore {
     this.tabs = this.tabs.map((t) =>
       t.id === id ? { ...t, path, title: path.split("/").pop() ?? path } : t
     );
+    this.selectedPaths.delete(id);
     this.notify();
   };
 
   goForward(id: string) {
     const h = this.ensureHistory(id);
-    console.log("goForward - index:", h.index, "length:", h.stack.length);
     if (h.index >= h.stack.length - 1) return;
     h.index++;
     const path = h.stack[h.index];
     this.tabs = this.tabs.map((t) =>
       t.id === id ? { ...t, path, title: path.split("/").pop() ?? path } : t
     );
+    this.selectedPaths.delete(id);
     this.notify();
   };
 
@@ -148,12 +157,21 @@ class TabStore {
   canGoBack(id: string): boolean {
     const h = this.histories.get(id);
     return h ? h.index > 0 : false;
-  }
+  };
+
   canGoForward(id: string): boolean {
     const h = this.histories.get(id);
-    console.log("canGoForward - h:", h);
     return h ? h.index < h.stack.length - 1 : false;
-  }
+  };
+
+  selectFile(tabId: string, fileName: string | null) {
+    if (fileName === null) {
+      this.selectedPaths.delete(tabId);
+    } else {
+      this.selectedPaths.set(tabId, fileName);
+    };
+    this.notify();
+  };
 };
 
 export const useTabStore = () => {

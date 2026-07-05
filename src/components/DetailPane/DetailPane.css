@@ -1,0 +1,36 @@
+/* DetailPane.css
+   用途: 右侧详细信息窗格的样式; */
+.detail-pane {
+  width: 260px;
+  min-width: 200px;
+  padding: 12px;
+  border-left: 1px solid #e5e5e5;
+  overflow-y: auto;
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.detail-hint {
+  margin: 0;
+  font-size: 12px;
+  color: #999;
+}
+
+.detail-info p {
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+.detail-label {
+  color: #888;
+  margin-right: 6px;
+}

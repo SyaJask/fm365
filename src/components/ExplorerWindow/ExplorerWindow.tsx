@@ -4,7 +4,9 @@ import './ExplorerWindow.css';
 import { TitleBar } from "../TitleBar";
 import { NavigationBar } from "../NavigationBar";
 import { CommandBar } from "../CommandBar";
+import { FolderTree } from '../FolderTree';
 import { FileView } from '../FileView';
+import { DetailPane } from '../DetailPane';
 import { StatusBar } from '../StatusBar';
 import { useTabStore } from "../../stores/tabStore";
 
@@ -16,7 +18,13 @@ export const ExplorerWindow = () => {
       <TitleBar tabs={tabs} />
       <NavigationBar />
       <CommandBar />
-      <FileView />
+      <div className="main-area">
+        <FolderTree />
+        <div className="content-area">
+          <FileView />
+        </div>
+        <DetailPane />
+      </div>
       <StatusBar />
     </div>
   );

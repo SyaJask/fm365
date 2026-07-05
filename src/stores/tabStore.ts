@@ -24,6 +24,7 @@ class TabStore {
       canGoBack: this.activeId ? this.canGoBack(this.activeId) : false,
       canGoForward: this.activeId ? this.canGoForward(this.activeId) : false,
       selectedFile,
+      searchQuery: this.searchQuery,
     };
     this.listeners.forEach((fn) => fn());
   };
@@ -34,6 +35,7 @@ class TabStore {
     canGoBack: boolean;
     canGoForward: boolean;
     selectedFile: FileNode | null;
+    searchQuery: string;
   } | null = null;
 
   private histories = new Map<string, { stack: string[]; index: number }>();
@@ -46,6 +48,8 @@ class TabStore {
   };
 
   private selectedPaths = new Map<string, string>();
+
+  searchQuery: string = "";
   
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -170,6 +174,12 @@ class TabStore {
     } else {
       this.selectedPaths.set(tabId, fileName);
     };
+    this.notify();
+  };
+
+  
+  setSearchQuery(query: string) {
+    this.searchQuery = query;
     this.notify();
   };
 };

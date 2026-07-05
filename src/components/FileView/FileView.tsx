@@ -7,12 +7,15 @@ import { root, getFilesByPath } from "../../data/fileTree";
 import type { FileNode } from "../../data/fileTree";
 
 export const FileView = () => {
-  const { tabs, activeId, selectedFile } = useTabStore();
+  const { tabs, activeId, selectedFile, searchQuery } = useTabStore();
   const activeTab = tabs.find((t) => t.id === activeId);
 
-  const files: FileNode[] = activeTab
+  const files: FileNode[] = (activeTab
     ? getFilesByPath(root, activeTab.path)
-    : [];
+    : [])
+    .filter((f) =>
+      f.name.toLowerCase().includes((searchQuery ?? "").toLowerCase())
+    );
   
   return (
     <div className="file-view">
@@ -25,7 +28,7 @@ export const FileView = () => {
             if (file.type === "folder" && activeId) {
               const newPath = activeTab?.path.replace(/\/+$/, "") + "/" + file.name;
               tabStore.selectFile(activeId, null);
-              tabStore.navigateTo(activeTab.id, newPath);
+              tabStore.navigateTo(activeId, newPath);
             };
           }}
         >

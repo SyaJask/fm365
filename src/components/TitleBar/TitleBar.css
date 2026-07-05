@@ -3,7 +3,6 @@
  用途: 作为标题栏的样式文件, 定义标题栏的布局和样式;
 */
 .title-bar {
-  height: 48px;
   display: flex;
   align-items: stretch;
   height: 26px;

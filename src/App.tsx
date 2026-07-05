@@ -8,15 +8,12 @@ import { FolderTree } from './components/FolderTree';
 import { FileView } from './components/FileView';
 import { DetailPane } from './components/DetailPane';
 import { StatusBar } from './components/StatusBar';
-import { useTabStore } from './stores';
 
 function App() {
-  const { tabs } = useTabStore();
-  
   return (
     <>
       <div className="explorer-window">
-        <TitleBar tabs={tabs} />
+        <TitleBar />
         <NavigationBar />
         <CommandBar />
         <div className="main-area">

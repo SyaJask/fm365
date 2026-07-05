@@ -10,12 +10,30 @@ class TabStore {
   private listeners = new Set<() => void>();
 
   private notify() {
-    console.log("TabStore notify: ", this.tabs, this.activeId, this.tabs.length);
-    this.snapshot = { tabs: this.tabs, activeId: this.activeId };
+    this.snapshot = {
+      tabs: this.tabs,
+      activeId: this.activeId,
+      canGoBack: this.activeId ? this.canGoBack(this.activeId) : false,
+      canGoForward: this.activeId ? this.canGoForward(this.activeId) : false,
+    };
     this.listeners.forEach((fn) => fn());
   };
 
-  private snapshot: { tabs: Tab[], activeId: string | null } | null = null;
+  private snapshot: {
+    tabs: Tab[];
+    activeId: string | null;
+    canGoBack: boolean;
+    canGoForward: boolean;
+  } | null = null;
+
+  private histories = new Map<string, { stack: string[]; index: number }>();
+
+  private ensureHistory(id: string) {
+    if (!this.histories.has(id)) {
+      this.histories.set(id, { stack: [], index: -1 });
+    };
+    return this.histories.get(id)!;
+  };
 
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -24,17 +42,19 @@ class TabStore {
 
   getSnapshot = () => {
     if (!this.snapshot) {
-      this.snapshot = { tabs: this.tabs, activeId: this.activeId };
+      this.snapshot = {
+        tabs: this.tabs,
+        activeId: this.activeId,
+        canGoBack: this.activeId ? this.canGoBack(this.activeId) : false,
+        canGoForward: this.activeId ? this.canGoForward(this.activeId) : false,
+      };
     };
     return this.snapshot;
   };
 
   constructor() {
-    this.open({
-      id: "1",
-      title: "主页",
-      path: "D:/ai2all/fm365/src/compoents",
-    });
+    this.open({ id: "1", title: "主页", path: "D:/ai2all/fm365/src" });
+    this.navigateTo("1", "D:/ai2all/fm365/src");
   }
 
   open(tab: Omit<Tab, "active">) {
@@ -76,6 +96,64 @@ class TabStore {
     this.activeId = id;
     this.notify();
   };
+
+  navigateTo(id: string, path: string) {
+    const h = this.ensureHistory(id);
+    // 若当前位置不是栈顶, 截断后面的
+    h.stack = h.stack.slice(0, h.index + 1);
+    h.stack.push(path);
+    h.index = h.stack.length - 1;
+
+    this.tabs = this.tabs.map((t) =>
+      t.id === id ? { ...t, path, title: path.split("/").pop() ?? path } : t
+    )
+    this.notify();
+  };
+
+  goBack(id: string) {
+    const h = this.ensureHistory(id);
+    if (h.index <= 0) return;
+    h.index--;
+    const path = h.stack[h.index];
+    this.tabs = this.tabs.map((t) =>
+      t.id === id ? { ...t, path, title: path.split("/").pop() ?? path } : t
+    );
+    this.notify();
+  };
+
+  goForward(id: string) {
+    const h = this.ensureHistory(id);
+    console.log("goForward - index:", h.index, "length:", h.stack.length);
+    if (h.index >= h.stack.length - 1) return;
+    h.index++;
+    const path = h.stack[h.index];
+    this.tabs = this.tabs.map((t) =>
+      t.id === id ? { ...t, path, title: path.split("/").pop() ?? path } : t
+    );
+    this.notify();
+  };
+
+  goUp(id: string) {
+    const tab = this.tabs.find((t) => t.id === id);
+    if (!tab) return;
+    const path = tab.path.replace(/\/+$/, "");
+    const parent = path.substring(0, path.lastIndexOf("/"));
+    if (!parent || parent === "D:") {
+      this.navigateTo(id, "D:");
+    } else if (parent.startsWith("D:")) {
+      this.navigateTo(id, parent);
+    };
+  };
+
+  canGoBack(id: string): boolean {
+    const h = this.histories.get(id);
+    return h ? h.index > 0 : false;
+  }
+  canGoForward(id: string): boolean {
+    const h = this.histories.get(id);
+    console.log("canGoForward - h:", h);
+    return h ? h.index < h.stack.length - 1 : false;
+  }
 };
 
 export const useTabStore = () => {

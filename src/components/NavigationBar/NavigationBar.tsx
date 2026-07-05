@@ -2,7 +2,6 @@
 // 用途: 导航栏组件, 包含导航按钮和地址栏等功能;
 import './NavigationBar.css';
 import { NavigationButtons, BreadcrumbBar, SearchBox } from '.';
-// BreadcrumbBar 和 SearchBar 还没实现, 先占位
 
 export const NavigationBar = () => {
     return (

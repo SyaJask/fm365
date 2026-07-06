@@ -3,29 +3,26 @@
 
 import "./FileView.css";
 import { useTabStore, tabStore } from "../../stores";
-import { root, getFilesByPath, type FileNode } from "../../data/fileTree";
+import { useFileStore, fileStore } from "../../stores";
 
 export const FileView = () => {
-  const { tabs, activeId, selectedFile, searchQuery } = useTabStore();
-  const activeTab = tabs.find((t) => t.id === activeId);
+  const { files, selectedFile, currentPath } = useFileStore();
+  const { activeId, searchQuery } = useTabStore();
 
-  const files: FileNode[] = (activeTab
-    ? getFilesByPath(root, activeTab.path)
-    : [])
-    .filter((f) =>
-      f.name.toLowerCase().includes((searchQuery ?? "").toLowerCase())
-    );
+  const filtered: typeof files = files.filter((f) =>
+    f.name.toLowerCase().includes((searchQuery ?? "").toLowerCase())
+  );
   
   return (
     <div className="file-view">
-      {files.map((file) => (
+      {filtered.map((file) => (
         <div key={file.name}
           className={`file-item ${selectedFile?.name === file.name ? "selected" : ""}`}
-          onClick={() => activeId && tabStore.selectFile(activeId, file.name)}
+          onClick={() => fileStore.selectFile(file.name)}
           onDoubleClick={() => {
             if (file.type === "folder" && activeId) {
-              const newPath = activeTab?.path.replace(/\/+$/, "") + "/" + file.name;
-              tabStore.selectFile(activeId, null);
+              const newPath = currentPath.replace(/\/+$/, "") + "/" + file.name;
+              fileStore.selectFile(null);
               tabStore.navigateTo(activeId, newPath);
             };
           }}

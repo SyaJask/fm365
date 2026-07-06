@@ -1,14 +1,16 @@
 // FolderTree.tsx
 // 用途: 左侧导航窗口, 显示文件夹树结构, 支持展开/折叠;
 import { useState } from "react";
-import { useTabStore, tabStore } from "../../stores";
-import { root, type FileNode } from "../../data/fileTree";
+import { useFileStore, useTabStore, tabStore } from "../../stores";
+import { type FileNode } from "../../data/fileTree";
 import "./FolderTree.css";
 
 export const FolderTree = () => {
+  const { tree } = useFileStore();
+
   return (
     <div className="folder-tree">
-      <FolderTreeNode node={root} depth={0} parentPath="" />
+      <FolderTreeNode node={tree} depth={0} parentPath="" />
     </div>
   )
 }
@@ -21,6 +23,7 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
   const currentPath = depth === 0
     ? node.name
     : parentPath + "/" + node.name;
+  
   const { activeId } = useTabStore();
   const [expanded, setExpanded] = useState(depth < 2);
 
@@ -28,17 +31,20 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
 
   return (
     <div className="tree-branch">
-      <div className="tree-node" style={{ paddingLeft: depth * 16 + 8 }}
-        onClick={() => {
-          activeId && tabStore.navigateTo(activeId, currentPath);
-          setExpanded((v) => !v);
-        }}
-      >
-        <span className={`tree-arrow ${expanded ? "expanded" : ""}`}>
+      <div className="tree-node" style={{ paddingLeft: depth * 16 + 8 }}>
+        <span className={`tree-arrow ${expanded ? "expanded" : ""}`}
+          onClick={() => setExpanded((v) => !v)}
+        >
           {folders.length > 0 ? "▸" : "" }
         </span>
-        <span className="tree-icon">📁</span>
-        <span className="tree-name">{node.name}</span>
+        <span className="tree-node-label"
+          onClick={() => {
+            activeId && tabStore.navigateTo(activeId, currentPath);
+          }}
+        >
+          <span className="tree-icon">📁</span>
+          <span className="tree-name">{node.name}</span>
+        </span>
       </div>
       {expanded && folders.map((child) => (
         <FolderTreeNode key={child.name} node={child}
@@ -51,7 +57,7 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
 
 // 右侧详细信息窗格, 显示选中文件的属性和 AI 助手
 export const DetailPane = () => {
-  const { selectedFile } = useTabStore();
+  const { selectedFile } = useFileStore();
 
   return (
     <div className="detail-pane">

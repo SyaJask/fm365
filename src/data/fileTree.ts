@@ -8,9 +8,6 @@ export interface FileNode {
   children?: FileNode[];
 }
 
-// 全路径→节点 的扁平缓存, 后面加 node 用
-let _flatCache: Map<string, FileNode> | null = null;
-
 export const root: FileNode = {
   name: "D:",
   type: "folder",

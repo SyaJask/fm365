@@ -1,7 +1,22 @@
 // NavigationBar.tsx
 import './NavigationBar.css';
 import { tabStore, useTabStore } from '../../stores';
-import { type NavButtonsProps, type BreBarProps, type SeaBoxProps} from '../../types'
+import { type Tab } from '../../types'
+
+interface NavButtonsProps {
+  activeId: string | null;
+  canGoBack: boolean;
+  canGoForward: boolean;
+}
+
+interface BreBarProps {
+  tabs: Tab[];
+  activeId: string | null;
+}
+
+interface SeaBoxProps {
+  searchQuery: string;
+}
 
 // 导航栏按钮组件, 包含前进、后退、刷新等功能;
 const NavButtons = (

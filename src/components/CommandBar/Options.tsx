@@ -72,15 +72,15 @@ export const Dropdown = ({ trigger, children, title }: DropdownProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickQutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
       };
     };
     if (open) {
-      document.addEventListener("mousedown", handleClickQutside);
+      document.addEventListener("mousedown", handleClickOutside);
     };
-    return () => document.removeEventListener("mousedown", handleClickQutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
   return (

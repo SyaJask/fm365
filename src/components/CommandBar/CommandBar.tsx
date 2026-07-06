@@ -1,10 +1,13 @@
 // CommandBar.tsx
 // 用途: 命令栏容器, 包含操作按钮和视图切换器; 
 import "./CommandBar.css";
+import { useFileStore, fileStore } from "../../stores";
 import { NewOptions, SortOptions, MoreOptions, ViewSwitcher, Dropdown } from ".";
 
 // 命令栏按钮组件, 包含新建、剪切、复制、粘贴、重命名等操作按钮;
 export const CommandBar = () => {
+  const { selectedFile } = useFileStore();
+  
   return (
     <div className="command-bar">
       <div className="command-buttons">
@@ -16,7 +19,14 @@ export const CommandBar = () => {
         <button className="cmd-btn" title="粘贴">📄</button>
         <button className="cmd-btn" title="重命名">✏️</button>
         <button className="cmd-btn" title="共享">🔗</button>
-        <button className="cmd-btn" title="删除">🗑️</button>
+        <button className="cmd-btn" title="删除"
+          disabled={!selectedFile} onClick={() => {
+            if (selectedFile) {
+              fileStore.deleteFile(selectedFile.name);
+              fileStore.selectFile(null);
+            }
+          }}
+        >🗑️</button>
 
         {/* 排序 */}
         <Dropdown trigger={"🔽"} title="排序和分组选项"><SortOptions /></Dropdown>

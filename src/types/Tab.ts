@@ -11,21 +11,4 @@ export interface Tab {
 //   icon?: React.ReactNode
 };
 
-export interface TabProps {
-  tab: Tab;
-};
 
-export interface NavButtonsProps {
-  activeId: string | null;
-  canGoBack: boolean;
-  canGoForward: boolean;
-}
-
-export interface BreBarProps {
-  tabs: Tab[];
-  activeId: string | null;
-}
-
- export interface SeaBoxProps {
-  searchQuery: string;
-}

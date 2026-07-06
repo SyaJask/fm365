@@ -1,8 +1,7 @@
 // CommandBar.tsx
 // 用途: 命令栏容器, 包含操作按钮和视图切换器; 
 import "./CommandBar.css";
-import { Dropdown } from "../Dropdown";
-import { NewOptions, SortOptions, MoreOptions, ViewSwitcher } from ".";
+import { NewOptions, SortOptions, MoreOptions, ViewSwitcher, Dropdown } from ".";
 
 // 命令栏按钮组件, 包含新建、剪切、复制、粘贴、重命名等操作按钮;
 export const CommandBar = () => {
@@ -25,6 +24,7 @@ export const CommandBar = () => {
         <Dropdown trigger={"🎨"} title="布局和视图选项"><ViewSwitcher /></Dropdown>
         {/* 更多 */}
         <Dropdown trigger={"..."} title="查看更多"><MoreOptions /></Dropdown>
+        
         <button className="cmd-btn" title="GPT">📋</button>
         <button className="cmd-btn" title="显示或隐藏详细信息窗格">📋</button>
       </div>

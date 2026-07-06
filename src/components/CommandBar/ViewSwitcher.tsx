@@ -17,8 +17,7 @@ export const ViewSwitcher = () => {
   return (
     <>
       {views.map((v) => (
-        <button
-          key={v.mode}
+        <button key={v.mode}
           className={`dropdown-item ${active === v.mode ? "active" : ""}`}
           onClick={() => setActive(v.mode)}
         >

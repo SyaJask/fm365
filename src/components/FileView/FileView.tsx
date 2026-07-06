@@ -3,8 +3,7 @@
 
 import "./FileView.css";
 import { useTabStore, tabStore } from "../../stores";
-import { root, getFilesByPath } from "../../data/fileTree";
-import type { FileNode } from "../../data/fileTree";
+import { root, getFilesByPath, type FileNode } from "../../data/fileTree";
 
 export const FileView = () => {
   const { tabs, activeId, selectedFile, searchQuery } = useTabStore();
@@ -20,8 +19,7 @@ export const FileView = () => {
   return (
     <div className="file-view">
       {files.map((file) => (
-        <div
-          key={file.name}
+        <div key={file.name}
           className={`file-item ${selectedFile?.name === file.name ? "selected" : ""}`}
           onClick={() => activeId && tabStore.selectFile(activeId, file.name)}
           onDoubleClick={() => {
@@ -37,7 +35,7 @@ export const FileView = () => {
           </span>
           <span className="file-name">{file.name}</span>
         </div>
-      ))},
+      ))}
     </div>
   );
 };

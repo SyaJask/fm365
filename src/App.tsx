@@ -4,9 +4,8 @@ import './App.css';
 import { TitleBar } from './components/TitleBar';
 import { NavigationBar } from './components/NavigationBar';
 import { CommandBar } from './components/CommandBar';
-import { FolderTree } from './components/FolderTree';
+import { FolderTree, DetailPane } from './components/FolderTree';
 import { FileView } from './components/FileView';
-import { DetailPane } from './components/DetailPane';
 import { StatusBar } from './components/StatusBar';
 
 function App() {

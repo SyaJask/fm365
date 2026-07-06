@@ -1,6 +1,7 @@
 // Options.tsx
 // 用途: ;
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import "./Options.css";
 
 type SortBy = "name" | "date" | "type" | "size";
 
@@ -10,6 +11,12 @@ const options: { value: SortBy; label: string }[] = [
   { value: "type", label: "类型" },
   { value: "size", label: "大小" },
 ];
+
+interface DropdownProps {
+  trigger: React.ReactNode;
+  children: React.ReactNode;
+  title?: string;
+}
 
 // 新建操作下拉内容, 嵌入 Dropdown 使用;
 export const NewOptions = () => {
@@ -29,8 +36,7 @@ export const SortOptions = () => {
   return (
     <>
       {options.map((opt) => (
-        <button
-          key={opt.value}
+        <button key={opt.value}
           className={`dropdown-item ${selected === opt.value ? "active" : ""}`}
           onClick={() => setSelected(opt.value)}
         >
@@ -57,5 +63,38 @@ export const MoreOptions = () => {
       <div className="dropdown-sep" />
       <button className="dropdown-item">文件夹选项</button>
     </>
+  );
+};
+
+// 通用下拉组件, 点击按钮弹出菜单, 点击外部或选项时关闭; 
+export const Dropdown = ({ trigger, children, title }: DropdownProps) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickQutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      };
+    };
+    if (open) {
+      document.addEventListener("mousedown", handleClickQutside);
+    };
+    return () => document.removeEventListener("mousedown", handleClickQutside);
+  }, [open]);
+
+  return (
+    <div className="dropdown" ref={ref}>
+      <button className="dropdown-trigger"
+        title={title} onClick={() => setOpen((v) => !v)}
+      >
+        {trigger}
+      </button>
+      {open && (
+        <div className="dropdown-menu" onClick={() => setOpen(false)}>
+          {children}
+        </div>
+      )}
+    </div>
   );
 };

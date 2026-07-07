@@ -3,3 +3,31 @@
   overflow-y: auto;
   text-align: left;
 }
+
+.view-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 80px);
+  gap: 8px;
+  padding: 8px;
+}
+
+.view-thumbnails .file-item {
+  flex-direction: column;
+  text-align: center;
+  padding: 6px 4px;
+}
+
+.view-thumbnails .file-icon {
+  font-size: 28px;
+}
+
+.view-details .file-item {
+  /* 表格列布局 */
+}
+
+.view-details .file-type,
+.view-details .file-size {
+  flex: 0 0 100px;
+  font-size: 12px;
+  color: #999;
+}

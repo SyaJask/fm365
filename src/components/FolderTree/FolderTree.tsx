@@ -1,7 +1,6 @@
 // FolderTree.tsx
 // 用途: 左侧导航窗口, 显示文件夹树结构, 支持展开/折叠;
-import { useState } from "react";
-import { useFileStore, useTabStore, tabStore } from "../../stores";
+import { useFileStore, useTabStore, tabStore, fileStore } from "../../stores";
 import { type FileNode } from "../../data/fileTree";
 import "./FolderTree.css";
 
@@ -23,17 +22,19 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
   const currentPath = depth === 0
     ? node.name
     : parentPath + "/" + node.name;
-  
   const { activeId } = useTabStore();
-  const [expanded, setExpanded] = useState(depth < 2);
-
+  const { expandedPaths } = useFileStore();
+  const expanded = expandedPaths.has(currentPath);
   const folders = (node.children ?? []).filter((c) => c.type === "folder");
 
   return (
     <div className="tree-branch">
       <div className="tree-node" style={{ paddingLeft: depth * 16 + 8 }}>
         <span className={`tree-arrow ${expanded ? "expanded" : ""}`}
-          onClick={() => setExpanded((v) => !v)}
+          onClick={(e) => {
+            e.stopPropagation();
+            fileStore.toggleExpanded(currentPath);
+          }}
         >
           {folders.length > 0 ? "▸" : "" }
         </span>

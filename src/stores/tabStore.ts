@@ -11,6 +11,7 @@ class TabStore {
   private listeners = new Set<() => void>();
 
   private notify() {
+    // TODO UI store 待视图切换时迁移
     this.snapshot = {
       tabs: this.tabs,
       activeId: this.activeId,
@@ -109,6 +110,7 @@ class TabStore {
     )
     this.notify();
     fileStore.setCurrentPath(path);
+    fileStore.expandToPath(path);
   };
 
   goBack(id: string) {
@@ -121,6 +123,7 @@ class TabStore {
     );
     this.notify();
     fileStore.setCurrentPath(path);
+    fileStore.expandToPath(path);
   };
 
   goForward(id: string) {
@@ -133,6 +136,7 @@ class TabStore {
     );
     this.notify();
     fileStore.setCurrentPath(path);
+    fileStore.expandToPath(path);
   };
 
   goUp(id: string) {

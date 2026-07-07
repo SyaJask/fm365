@@ -3,11 +3,22 @@
 import { useSyncExternalStore } from "react";
 import { root as rootData, getFilesByPath, type FileNode } from "../data/fileTree";
 
+type ClipboardEntry = {
+  operation: "cut" | "copy";
+  fileName: string;
+  sourcePath: string;
+} | null;
+
 interface FileSnapshot {
   tree: FileNode;
   currentPath: string;
   files: FileNode[];
   selectedFile: FileNode | null;
+  clipboard: ClipboardEntry;
+  viewMode: "list" | "thumbnails" | "details";
+  sortBy: "name" | "date" | "type" | "size";
+  sortOrder: "asc" | "desc";
+  expandedPaths: ReadonlySet<string>;
 }
 
 function findNodeByPath(tree: FileNode, rawPath: string): FileNode | null {
@@ -60,6 +71,11 @@ class FileStore {
         currentPath: this.currentPath,
         files,
         selectedFile: name ? files.find((f) => f.name === name) ?? null : null,
+        clipboard: this.clipboard,
+        viewMode: this.viewMode,
+        sortBy: this.sortBy,
+        sortOrder: this.sortOrder,
+        expandedPaths: this.expandedPaths,
       };
     }
     return this.snapshot;
@@ -94,9 +110,180 @@ class FileStore {
     const idx = parent.children.findIndex((c) => c.name === fileName);
     if (idx === -1) return false;
 
-    parent.children.splice(idx, 1);
+    parent.children = [
+      ...parent.children.slice(0, idx),
+      ...parent.children.slice(idx + 1),
+    ];
     this.notify();
     return true;
+  }
+
+  createFolder(name: string): boolean {
+    const parent = findNodeByPath(this.tree, this.currentPath);
+    if (!parent?.children) return false;
+
+    // 检查重名
+    if (parent.children.some((c) => c.name === name && c.type === "folder")) {
+      return false;
+    }
+
+    parent.children = [...parent.children, { name, type: "folder"}];
+    this.notify();
+    return true;
+  }
+
+  createFile(name: string, ext: string): boolean {
+    const parent = findNodeByPath(this.tree, this.currentPath);
+    if (!parent?.children) return false;
+
+    if (parent.children.some((c) => c.name === name)) {
+      return false;
+    }
+
+    parent.children = [...parent.children, { name, type: "file", ext}];
+    this.notify();
+    return true;
+  }
+
+  renameFile(oldName: string, newName: string): boolean {
+    const parent = findNodeByPath(this.tree, this.currentPath);
+    if (!parent?.children) return false;
+
+    // 重命名检查
+    if (parent.children.some((c) => c.name === newName)) {
+      return false;
+    }
+
+    const idx = parent.children.findIndex((c) => c.name === oldName);
+    if (idx === -1) return false;
+
+    const node = parent.children[idx];
+
+    // 新数组引用
+    parent.children = [
+      ...parent.children.slice(0, idx),
+      { ...node, name: newName },
+      ...parent.children.slice(idx + 1),
+    ];
+    this.notify();
+    return true;
+  }
+
+  // 剪切板类型
+  clipboard: ClipboardEntry = null;
+
+  // 剪切
+  cut(fileName: string): boolean {
+    this.clipboard = {
+      operation: "cut",
+      fileName,
+      sourcePath: this.currentPath
+    };
+    return true;  // 不notify, 下次cut/copy 会覆盖
+  }
+
+  // 复制
+  copy(fileName: string): boolean {
+    this.clipboard = {
+      operation: "copy",
+      fileName,
+      sourcePath: this.currentPath
+    };
+    return true;
+  }
+
+  // 粘贴
+  paste(): boolean {
+    if (!this.clipboard) return false;
+
+    const { operation, fileName, sourcePath } = this.clipboard;
+    const src = findNodeByPath(this.tree, sourcePath);
+    if (!src?.children) return false;
+
+    const srcIdx = src.children.findIndex((c) => c.name === fileName);
+    if (srcIdx === -1) return false;
+
+    const node = src.children[srcIdx];
+    const dst = findNodeByPath(this.tree, this.currentPath);
+    if (!dst?.children) return false;
+
+    // 粘贴到当前目录, 避免与同目录下自己粘贴到同一目录
+    if (sourcePath === this.currentPath && operation === "copy") {
+      // 同目录复制 -> 重命名
+      const base = node.name.replace(/\.[^.]+$/, "");
+      const ext = node.ext ?? "";
+      let copyName = `${base} - 副本${ext}`;
+      let counter = 2;
+      while (dst.children!.some((c) => c.name === copyName)) {
+        copyName = `${base} - 副本 (${counter})${ext}`;
+        counter++;
+      }
+      const newNode: FileNode = { ...node, name: copyName };
+      if (node.children) newNode.children = [...node.children];
+      dst.children = [...dst.children, newNode];
+    } else {
+      // 不同目录, 或cut -> 先粘过去
+      if (dst.children!.some((c) => c.name === node.name)) return false;
+
+      const newNode: FileNode = { ...node };
+      if (node.children) newNode.children = [...node.children];
+      dst.children = [...dst.children, newNode];
+
+      // cut 要从源删除
+      if (operation === "cut") {
+        src.children = [
+          ...src.children.slice(0, srcIdx),
+          ...src.children.slice(srcIdx + 1),
+        ];
+        this.clipboard = null;
+      }
+    }
+
+    this.notify();
+    return true;
+  }
+
+  viewMode: "list" | "thumbnails" | "details" = "list";
+  setViewMode(mode: "list" | "thumbnails" | "details") {
+    this.viewMode = mode;
+    this.notify();
+  }
+
+  sortBy: "name" | "date" | "type" | "size" = "name";
+  sortOrder: "asc" | "desc" = "asc";
+  setSortMethod(by: "name" | "date" | "type" | "size", order?: "asc" | "desc") {
+    if (by === this.sortBy && order) {
+      this.sortOrder = order;
+    } else {
+      this.sortBy = by;
+      this.sortOrder = "asc";
+    }
+    this.notify();
+  }
+
+  expandedPaths = new Set<string>(["D:", "D:/ai2all", "D:/ai2all/fm365"]);
+  toggleExpanded(path: string) {
+    const next = new Set(this.expandedPaths);
+    if (next.has(path)) {
+      next.delete(path);
+    } else {
+      next.add(path);
+    }
+    this.expandedPaths = next
+    this.notify();
+  }
+
+  expandToPath(path: string) {
+    const next = new Set(this.expandedPaths);
+    // 从根到目标路径, 每段都展开
+    const parts = path.replace(/\/+$/, "").split("/");
+    let acc = "";
+    for (const part of parts) {
+      acc = acc ? acc + "/" + part : part;
+      next.add(acc);
+    }
+    this.expandedPaths = next;
+    this.notify();
   }
 }
 

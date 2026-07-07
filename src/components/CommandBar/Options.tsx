@@ -2,6 +2,7 @@
 // 用途: ;
 import { useState, useRef, useEffect } from "react";
 import "./Options.css";
+import { useFileStore, fileStore } from "../../stores";
 
 type SortBy = "name" | "date" | "type" | "size";
 
@@ -22,30 +23,44 @@ interface DropdownProps {
 export const NewOptions = () => {
   return (
     <>
-      <button className="dropdown-item">新建文件夹</button>
-      <button className="dropdown-item">新建文本文档</button>
-      <button className="dropdown-item">新建 Markdown</button>
+      <button className="dropdown-item"
+        onClick={() => fileStore.createFolder("新建文件夹")}
+      >新建文件夹</button>
+      <button className="dropdown-item"
+        onClick={() => fileStore.createFile("新建文本文档.txt", "txt")}
+      >新建文本文档</button>
+      <button className="dropdown-item"
+        onClick={() => fileStore.createFile("新建文档.md", ".md")}
+      >新建 Markdown</button>
     </>
   );
 };
 
 // 排序方式下拉内容, 嵌入 Dropdown 使用;
 export const SortOptions = () => {
-  const [selected, setSelected] = useState<SortBy>("name");
+  const { sortBy, sortOrder } = useFileStore();
 
   return (
     <>
       {options.map((opt) => (
         <button key={opt.value}
-          className={`dropdown-item ${selected === opt.value ? "active" : ""}`}
-          onClick={() => setSelected(opt.value)}
+          className={`dropdown-item ${sortBy === opt.value ? "active" : ""}`}
+          onClick={() => fileStore.setSortMethod(opt.value)}
         >
           {opt.label}
         </button>
       ))}
       <div className="dropdown-sep" />
-      <button className="dropdown-item">递增</button>
-      <button className="dropdown-item">递减</button>
+      <button className={`dropdown-item ${sortOrder === "asc" ? "active" : ""}`}
+        onClick={() => fileStore.setSortMethod(sortBy, "asc")}
+      >
+        递增
+      </button>
+      <button className={`dropdown-item ${sortOrder === "desc" ? "active" : ""}`}
+        onClick={() => fileStore.setSortMethod(sortBy, "desc")}
+      >
+        递减
+      </button>
     </>
   );
 };

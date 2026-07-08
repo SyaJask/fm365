@@ -7,7 +7,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--elevated);
 }
 
 .main-area {
@@ -19,5 +19,5 @@
 .content-area {
   flex: 1;
   overflow: auto;
-  background: #f8f8f8;
+  background: var(--base);
 }

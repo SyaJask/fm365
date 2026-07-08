@@ -29,5 +29,5 @@
 .view-details .file-size {
   flex: 0 0 100px;
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
 }

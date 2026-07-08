@@ -3,38 +3,64 @@
  用途: 左侧文件夹树导航窗格的样式;
 */
 .folder-tree {
-  width: 220px;
+  width: 200px;
   min-width: 160px;
   overflow-y: auto;
-  border-right: 1px solid #e5e5e5;
+  border-right: 1px solid var(--border);
   user-select: none;
 }
 
 .tree-node {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
+  gap: 1px;
+  padding: px 4px;
   cursor: pointer;
   font-size: 13px;
   white-space: nowrap;
+  position: relative;
+}
+
+.tree-node.active {
+  color: var(--accent);
+}
+
+.tree-node.active .tree-node-label {
+  background: var(--hover);
+}
+
+.tree-node.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent);
 }
 
 .tree-node-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 1px;
   flex: 1;
+  margin-left: -4px;
+  border-radius: 6px;
+}
+
+.tree-node-label:hover {
+  background: var(--hover);
 }
 
 .tree-node:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: transparent;
 }
 
 .tree-arrow {
   width: 14px;
   font-size: 10px;
-  color: #999;
+  color: var(--text-muted);
   transition: transform 0.15s;
 }
 
@@ -51,11 +77,15 @@
   text-overflow: ellipsis;
 }
 
+.tree-branch {
+  position: relative;
+}
+
 .detail-pane {
-  width: 260px;
+  width: 270px;
   min-width: 200px;
   padding: 12px;
-  border-left: 1px solid #e5e5e5;
+  border-left: 1px solid var(--border);
   overflow-y: auto;
 }
 
@@ -67,13 +97,13 @@
   margin: 0 0 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .detail-hint {
   margin: 0;
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .detail-info p {
@@ -82,6 +112,6 @@
 }
 
 .detail-label {
-  color: #888;
+  color: var(--text-muted);
   margin-right: 6px;
 }

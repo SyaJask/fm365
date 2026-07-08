@@ -23,13 +23,14 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
     ? node.name
     : parentPath + "/" + node.name;
   const { activeId } = useTabStore();
-  const { expandedPaths } = useFileStore();
+  const { expandedPaths, currentPath: activePath } = useFileStore();
   const expanded = expandedPaths.has(currentPath);
+  const isActive = currentPath == activePath;
   const folders = (node.children ?? []).filter((c) => c.type === "folder");
 
   return (
     <div className="tree-branch">
-      <div className="tree-node" style={{ paddingLeft: depth * 16 + 8 }}>
+      <div className={`tree-node ${isActive ? "active" : ""}`} style={{ paddingLeft: depth * 6 + 6 }}>
         <span className={`tree-arrow ${expanded ? "expanded" : ""}`}
           onClick={(e) => {
             e.stopPropagation();

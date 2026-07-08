@@ -18,8 +18,8 @@
 
   min-width: 160px;
 
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: var(--elevated);
+  border: 1px solid var(--border);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 

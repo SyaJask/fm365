@@ -7,3 +7,38 @@
   gap: 4px;
   border-bottom: 1px solid var(--border);
 }
+
+.command-buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cmd-btn,
+.command-buttons .dropdown-trigger {
+  height: 24px;
+  min-width: 24px;
+  padding: 0 6px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.cmd-btn:hover:not(:disabled),
+.command-buttons .dropdown-trigger:hover {
+  background: var(--hover);
+}
+
+.cmd-btn:disabled,
+.command-buttons .dropdown-trigger:disabled {
+  color: var(--text-muted);
+  cursor: default;
+  opacity: 0.4;
+}

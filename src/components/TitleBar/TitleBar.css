@@ -3,9 +3,7 @@
  用途: 作为标题栏的样式文件, 定义标题栏的布局和样式;
 */
 .title-bar {
-  display: flex;
-  align-items: stretch;
-  height: 26px;
+  height: 30px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -16,26 +14,61 @@
 }
 
 .tab-add {
-  flex: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 23.8px;
-  height: 21.34px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.tab-add:hover {
+  background: var(--hover);
+  color: var(--text-primary);
 }
 
 .tab{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 14px;
-  cursor:pointer;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 0 14px;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
 }
 
 .tab.active {
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 500;
+  border-bottom-color: var(--accent);
 }
 
 .tab:hover{
-  background-color: var(--hover);
+  background: var(--hover);
+}
+
+.tab-close {
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.tab:hover .tab-close {
+  opacity: 1;
+}
+
+.tab-close:hover {
+  background: var(--hover);
+  color: var(--text-primary);
 }

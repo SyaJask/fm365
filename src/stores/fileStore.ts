@@ -13,7 +13,7 @@ interface FileSnapshot {
   tree: FileNode;
   currentPath: string;
   files: FileNode[];
-  selectedFile: FileNode | null;
+  selectedFiles: FileNode[];
   clipboard: ClipboardEntry;
   viewMode: "list" | "thumbnails" | "details";
   sortBy: "name" | "date" | "type" | "size";
@@ -47,7 +47,7 @@ class FileStore {
   tree: FileNode = structuredClone(rootData);
   currentPath: string = "D:/ai2all/fm365/src";
 
-  private selectedPaths = new Map<string, string>();
+  private selectedPaths = new Map<string, Set<string>>();
   private listeners = new Set<() => void>();
   private snapshot: FileSnapshot | null = null;
 
@@ -65,12 +65,12 @@ class FileStore {
     // 先返回简单版本，后面 tabStore 传 path 进来再完善
     if (!this.snapshot) {
       const files = getFilesByPath(this.tree, this.currentPath);
-      const name = this.selectedPaths.get(this.currentPath);
+      const names = this.selectedPaths.get(this.currentPath) ?? new Set();
       this.snapshot = {
         tree: this.tree,
         currentPath: this.currentPath,
         files,
-        selectedFile: name ? files.find((f) => f.name === name) ?? null : null,
+        selectedFiles: files.filter((f) => names.has(f.name)),
         clipboard: this.clipboard,
         viewMode: this.viewMode,
         sortBy: this.sortBy,
@@ -83,24 +83,50 @@ class FileStore {
 
   setCurrentPath(path: string) {
     this.currentPath = path;
-    this.selectedPaths.delete(path);  // 切路径时清选中
     this.notify();
   }
 
-  selectFile(fileName: string | null) {
-    if (fileName === null) {
-      this.selectedPaths.delete(this.currentPath);
+  selectFile(fileName: string) {
+    let set = this.selectedPaths.get(this.currentPath);
+    if (!set) {
+      set = new Set<string>();
+      this.selectedPaths.set(this.currentPath, set);
+    }
+    // toggle: 有就删没就加
+    if (set.has(fileName)) {
+      set.delete(fileName);
     } else {
-      this.selectedPaths.set(this.currentPath, fileName);
+      set.add(fileName);
+    }
+    // 空set 就删key
+    if (set.size === 0) {
+      this.selectedPaths.delete(this.currentPath);
     }
     this.notify();
   }
 
-  getSelected(path: string): FileNode | null {
-    const name = this.selectedPaths.get(path);
-    if (!name) return null;
-    const files = getFilesByPath(this.tree, path);
-    return files.find((f) => f.name === name) ?? null;
+  // selectAll / invert / deselectAll
+  selectAll() {
+    const files = getFilesByPath(this.tree, this.currentPath);
+    this.selectedPaths.set(this.currentPath, new Set(files.map((f) => f.name)));
+    this.notify();
+  }
+
+  invertSelection() {
+    const files = getFilesByPath(this.tree, this.currentPath);
+    const current = this.selectedPaths.get(this.currentPath) ?? new Set();
+    const inverted = new Set<string>();
+    for (const f of files) {
+      if (!current.has(f.name)) inverted.add(f.name);
+    }
+    this.selectedPaths.set(this.currentPath, inverted);
+    if (inverted.size === 0) this.selectedPaths.delete(this.currentPath);
+    this.notify();
+  }
+
+  deselectAll() {
+    this.selectedPaths.delete(this.currentPath);
+    this.notify();
   }
 
   deleteFile(fileName: string): boolean {

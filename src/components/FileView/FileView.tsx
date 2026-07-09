@@ -2,11 +2,12 @@
 // 用途: 文件视图, 展示当前路径下的文件和文件夹;
 
 import "./FileView.css";
+import { getFileIcon } from "../../utils/icon";
 import { useTabStore, tabStore } from "../../stores";
 import { useFileStore, fileStore } from "../../stores";
 
 export const FileView = () => {
-  const { files, selectedFile, currentPath, viewMode, sortBy, sortOrder } = useFileStore();
+  const { files, selectedFiles, currentPath, viewMode, sortBy, sortOrder } = useFileStore();
   const { activeId, searchQuery } = useTabStore();
 
   const filtered: typeof files = files.filter((f) =>
@@ -23,18 +24,18 @@ export const FileView = () => {
     <div className={`file-view view-${viewMode}`}>
       {sorted.map((file) => (
         <div key={file.name}
-          className={`file-item ${selectedFile?.name === file.name ? "selected" : ""}`}
+          className={`file-item ${selectedFiles.some((f) => f.name === file.name) ? "selected" : ""}`}
           onClick={() => fileStore.selectFile(file.name)}
           onDoubleClick={() => {
             if (file.type === "folder" && activeId) {
               const newPath = currentPath.replace(/\/+$/, "") + "/" + file.name;
-              fileStore.selectFile(null);
+              fileStore.deselectAll();
               tabStore.navigateTo(activeId, newPath);
             };
           }}
         >
           <span className="file-icon">
-            {file.type === "folder" ? "📁" : "📄"}
+            {getFileIcon(file.name, file.type)}
           </span>
           <span className="file-name">{file.name}</span>
           {viewMode === "details" && (

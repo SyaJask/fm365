@@ -6,7 +6,8 @@ import { NewOptions, SortOptions, MoreOptions, ViewSwitcher, Dropdown } from "."
 
 // 命令栏按钮组件, 包含新建、剪切、复制、粘贴、重命名等操作按钮;
 export const CommandBar = () => {
-  const { selectedFile, clipboard } = useFileStore();
+  const { selectedFiles, clipboard } = useFileStore();
+  const firstSelected = selectedFiles[0] ?? null;
 
   return (
     <div className="command-bar">
@@ -15,34 +16,36 @@ export const CommandBar = () => {
         <Dropdown trigger={"+"} title="新建"><NewOptions /></Dropdown>
 
         <button className="cmd-btn" title="剪切"
-          disabled={!selectedFile}
-          onClick={() => selectedFile && fileStore.cut(selectedFile.name)}
+          disabled={!firstSelected}
+          onClick={() => firstSelected && fileStore.cut(firstSelected.name)}
         >✂️</button>
         <button className="cmd-btn" title="复制"
-          disabled={!selectedFile}
-          onClick={() => selectedFile && fileStore.copy(selectedFile.name)}
+          disabled={!firstSelected}
+          onClick={() => firstSelected && fileStore.copy(firstSelected.name)}
         >📋</button>
         <button className="cmd-btn" title="粘贴"
           disabled={!clipboard}
           onClick={() => fileStore.paste()}
         >📄</button>
         <button className="cmd-btn" title="重命名"
-          disabled={!selectedFile} onClick={() => {
-            if (!selectedFile) return;
+          disabled={!firstSelected} onClick={() => {
+            if (!firstSelected) return;
             // TODO 后续改成内联编辑(双击文件名变 input)
-            const newName = window.prompt("重命名为:", selectedFile.name);
-            if (newName && newName !== selectedFile.name) {
-              fileStore.renameFile(selectedFile.name, newName);
-              fileStore.selectFile(null);
+            const newName = window.prompt("重命名为:", firstSelected.name);
+            if (newName && newName !== firstSelected.name) {
+              fileStore.renameFile(firstSelected.name, newName);
+              fileStore.deselectAll();
             }
           }}
         >✏️</button>
         <button className="cmd-btn" title="共享">🔗</button>
         <button className="cmd-btn" title="删除"
-          disabled={!selectedFile} onClick={() => {
-            if (selectedFile) {
-              fileStore.deleteFile(selectedFile.name);
-              fileStore.selectFile(null);
+          disabled={selectedFiles.length === 0} onClick={() => {
+            if (selectedFiles.length > 0) {
+              for (const f of selectedFiles) {
+                fileStore.deleteFile(f.name);
+              }
+              fileStore.deselectAll();
             }
           }}
         >🗑️</button>

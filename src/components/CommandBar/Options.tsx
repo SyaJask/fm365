@@ -69,9 +69,15 @@ export const SortOptions = () => {
 export const MoreOptions = () => {
   return (
     <>
-      <button className="dropdown-item">全选</button>
-      <button className="dropdown-item">反转选择</button>
-      <button className="dropdown-item">全不选</button>
+      <button className="dropdown-item"
+        onClick={() => fileStore.selectAll()}
+      >全选</button>
+      <button className="dropdown-item"
+        onClick={() => fileStore.invertSelection()}
+      >反转选择</button>
+      <button className="dropdown-item"
+        onClick={() => fileStore.deselectAll()}
+      >全不选</button>
       <div className="dropdown-sep" />
       <button className="dropdown-item">映射网络驱动器</button>
       <button className="dropdown-item">断开网络驱动器</button>

@@ -1,8 +1,9 @@
 // FolderTree.tsx
 // 用途: 左侧导航窗口, 显示文件夹树结构, 支持展开/折叠;
+import "./FolderTree.css";
+import { getFileIcon } from "../../utils/icon";
 import { useFileStore, useTabStore, tabStore, fileStore } from "../../stores";
 import { type FileNode } from "../../data/fileTree";
-import "./FolderTree.css";
 
 export const FolderTree = () => {
   const { tree } = useFileStore();
@@ -44,7 +45,9 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
             activeId && tabStore.navigateTo(activeId, currentPath);
           }}
         >
-          <span className="tree-icon">📁</span>
+          <span className="tree-icon">
+            {getFileIcon(node.name, node.type)}
+          </span>
           <span className="tree-name">{node.name}</span>
         </span>
       </div>
@@ -59,20 +62,23 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
 
 // 右侧详细信息窗格, 显示选中文件的属性和 AI 助手
 export const DetailPane = () => {
-  const { selectedFile } = useFileStore();
+  const { selectedFiles } = useFileStore();
 
   return (
     <div className="detail-pane">
       <div className="detail-section">
         <h3 className="detail-title">详细信息</h3>
-        {selectedFile ? (
-          <div className="detail-info">
-            <p><span className="detail-label">名称:</span>{selectedFile.name}</p>
-            <p><span className="detail-label">类型:</span>{selectedFile.type === "folder" ? "文件夹" : selectedFile.ext ?? "文件"}</p>
-            {selectedFile.type === "file" && selectedFile.ext && (
-              <p><span className="detail-label">扩展名:</span>{selectedFile.ext}</p>
-            )}
-          </div>
+        {selectedFiles.length > 0 ? (
+          selectedFiles.length === 1 ? (
+            <div className="detail-info">
+              <p><span className="detail-label">名称:</span>{selectedFiles[0].name}</p>
+              <p><span className="detail-label">类型:</span>
+                {selectedFiles[0].type === "folder" ? "文件夹" : selectedFiles[0].ext ?? "文件"}
+              </p>
+            </div>
+          ) : (
+            <p className="detail-hint">已选择 {selectedFiles.length} 个项目</p>
+          )
         ) : (
           <p className="detail-hint">选择一个文件以查看其属性</p>
         )

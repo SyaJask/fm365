@@ -28,15 +28,9 @@ export const CommandBar = () => {
           onClick={() => fileStore.paste()}
         >📄</button>
         <button className="cmd-btn" title="重命名"
-          disabled={!firstSelected} onClick={() => {
-            if (!firstSelected) return;
-            // TODO 后续改成内联编辑(双击文件名变 input)
-            const newName = window.prompt("重命名为:", firstSelected.name);
-            if (newName && newName !== firstSelected.name) {
-              fileStore.renameFile(firstSelected.name, newName);
-              fileStore.deselectAll();
-            }
-          }}
+          disabled={!firstSelected} onClick={() =>
+            firstSelected && fileStore.setRenaming(firstSelected.name)
+          }
         >✏️</button>
         <button className="cmd-btn" title="共享">🔗</button>
         <button className="cmd-btn" title="删除"

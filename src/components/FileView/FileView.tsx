@@ -7,7 +7,7 @@ import { useTabStore, tabStore } from "../../stores";
 import { useFileStore, fileStore } from "../../stores";
 
 export const FileView = () => {
-  const { files, selectedFiles, currentPath, viewMode, sortBy, sortOrder } = useFileStore();
+  const { files, selectedFiles, currentPath, viewMode, sortOrder, renaming } = useFileStore();
   const { activeId, searchQuery } = useTabStore();
 
   const filtered: typeof files = files.filter((f) =>
@@ -37,7 +37,33 @@ export const FileView = () => {
           <span className="file-icon">
             {getFileIcon(file.name, file.type)}
           </span>
-          <span className="file-name">{file.name}</span>
+          {renaming === file.name ? (
+            <input className="rename-input" defaultValue={file.name}
+              autoFocus onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const input = e.currentTarget;
+                  const newName  = input.value.trim();
+                  if (newName && newName !== file.name) {
+                    fileStore.renameFile(file.name, newName);
+                  }
+                  fileStore.deselectAll();
+                  fileStore.setRenaming(null);
+                } else if (e.key === "Escape") {
+                  fileStore.setRenaming(null);
+                }
+              }}
+              onBlur={(e) => {
+                const newName = e.currentTarget.value.trim();
+                if (newName && newName !== file.name) {
+                  fileStore.renameFile(file.name, newName);
+                }
+                fileStore.deselectAll();
+                fileStore.setRenaming(null);
+              }}
+            />
+          ) : (
+            <span className="file-name">{file.name}</span>
+          )}
           {viewMode === "details" && (
             <>
               <span className="file-type">

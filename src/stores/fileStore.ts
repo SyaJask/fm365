@@ -19,6 +19,7 @@ interface FileSnapshot {
   sortBy: "name" | "date" | "type" | "size";
   sortOrder: "asc" | "desc";
   expandedPaths: ReadonlySet<string>;
+  renaming: string | null;
 }
 
 function findNodeByPath(tree: FileNode, rawPath: string): FileNode | null {
@@ -76,6 +77,7 @@ class FileStore {
         sortBy: this.sortBy,
         sortOrder: this.sortOrder,
         expandedPaths: this.expandedPaths,
+        renaming: this.renaming,
       };
     }
     return this.snapshot;
@@ -309,6 +311,12 @@ class FileStore {
       next.add(acc);
     }
     this.expandedPaths = next;
+    this.notify();
+  }
+
+  renaming: string | null = null;
+  setRenaming(fileName: string | null) {
+    this.renaming = fileName;
     this.notify();
   }
 }

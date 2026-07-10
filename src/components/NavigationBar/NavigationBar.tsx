@@ -3,24 +3,24 @@ import './NavigationBar.css';
 import { tabStore, useTabStore } from '../../stores';
 import { type Tab } from '../../types'
 
-interface NavButtonsProps {
+interface NavigationButtonsProps {
   activeId: string | null;
   canGoBack: boolean;
   canGoForward: boolean;
 }
 
-interface BreBarProps {
+interface BreadcrumbBarProps {
   tabs: Tab[];
   activeId: string | null;
 }
 
-interface SeaBoxProps {
+interface SearchBoxProps {
   searchQuery: string;
 }
 
 // 导航栏按钮组件, 包含前进、后退、刷新等功能;
-const NavButtons = (
-  { activeId, canGoBack, canGoForward }: NavButtonsProps
+const NavigationButtons = (
+  { activeId, canGoBack, canGoForward }: NavigationButtonsProps
 ) => {
   return (
     <div className="nav-buttons">
@@ -49,7 +49,7 @@ const NavButtons = (
 };
 
 // 面包屑导航栏组件, 用于显示当前路径和导航到上级目录;
-const BreBar = ({ tabs, activeId }: BreBarProps) => {
+const BreadcrumbBar = ({ tabs, activeId }: BreadcrumbBarProps) => {
   const activeTab = tabs.find((t) => t.id === activeId);
   const path = activeTab?.path ?? "";
 
@@ -80,7 +80,7 @@ const BreBar = ({ tabs, activeId }: BreBarProps) => {
 };
 
 // 搜索框组件, 用于在文件资源管理器中进行搜索操作;
-const SeaBox = ({ searchQuery }: SeaBoxProps) => {
+const SearchBox = ({ searchQuery }: SearchBoxProps) => {
   return (
     <div className="search-box">
       <input type="text" placeholder="搜索"
@@ -105,10 +105,10 @@ export const NavigationBar = () => {
 
   return (
     <div className="navigation-bar">
-      <NavButtons
+      <NavigationButtons
         activeId={activeId} canGoBack={canGoBack} canGoForward={canGoForward} />
-      <BreBar tabs={tabs} activeId={activeId} />
-      <SeaBox searchQuery={searchQuery} />
+      <BreadcrumbBar tabs={tabs} activeId={activeId} />
+      <SearchBox searchQuery={searchQuery} />
     </div>
   );
 };

@@ -79,6 +79,7 @@ export const MoreOptions = () => {
         onClick={() => fileStore.deselectAll()}
       >全不选</button>
       <div className="dropdown-sep" />
+      {/* TODO: 考虑挂载、卸载系统盘符 */}
       <button className="dropdown-item">映射网络驱动器</button>
       <button className="dropdown-item">断开网络驱动器</button>
       <div className="dropdown-sep" />

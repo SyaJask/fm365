@@ -44,7 +44,7 @@ export const FileView = () => {
                   const input = e.currentTarget;
                   const newName  = input.value.trim();
                   if (newName && newName !== file.name) {
-                    fileStore.renameFile(file.name, newName);
+                    fileStore.renameFiles(file.name, newName);
                   }
                   fileStore.deselectAll();
                   fileStore.setRenaming(null);
@@ -55,7 +55,7 @@ export const FileView = () => {
               onBlur={(e) => {
                 const newName = e.currentTarget.value.trim();
                 if (newName && newName !== file.name) {
-                  fileStore.renameFile(file.name, newName);
+                  fileStore.renameFiles(file.name, newName);
                 }
                 fileStore.deselectAll();
                 fileStore.setRenaming(null);

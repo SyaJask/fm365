@@ -8,6 +8,7 @@ import { NewOptions, SortOptions, MoreOptions, ViewSwitcher, Dropdown } from "."
 export const CommandBar = () => {
   const { selectedFiles, clipboard } = useFileStore();
   const firstSelected = selectedFiles[0] ?? null;
+  const lastSelected = selectedFiles[selectedFiles.length - 1] ?? null;
 
   return (
     <div className="command-bar">
@@ -16,22 +17,23 @@ export const CommandBar = () => {
         <Dropdown trigger={"+"} title="新建"><NewOptions /></Dropdown>
 
         <button className="cmd-btn" title="剪切"
-          disabled={!firstSelected}
-          onClick={() => firstSelected && fileStore.cut(firstSelected.name)}
+          disabled={selectedFiles.length === 0}
+          onClick={() => selectedFiles.length > 0 && fileStore.cut(selectedFiles.map((f) => f.name))}
         >✂️</button>
         <button className="cmd-btn" title="复制"
-          disabled={!firstSelected}
-          onClick={() => firstSelected && fileStore.copy(firstSelected.name)}
+          disabled={selectedFiles.length === 0}
+          onClick={() => selectedFiles.length > 0 && fileStore.copy(selectedFiles.map((f) => f.name))}
         >📋</button>
         <button className="cmd-btn" title="粘贴"
           disabled={!clipboard}
           onClick={() => fileStore.paste()}
         >📄</button>
         <button className="cmd-btn" title="重命名"
-          disabled={!firstSelected} onClick={() =>
-            firstSelected && fileStore.setRenaming(firstSelected.name)
+          disabled={selectedFiles.length === 0} onClick={() =>
+            lastSelected && fileStore.setRenaming(lastSelected.name)
           }
         >✏️</button>
+        {/* TODO: 分享文件链接 */}
         <button className="cmd-btn" title="共享">🔗</button>
         <button className="cmd-btn" title="删除"
           disabled={selectedFiles.length === 0} onClick={() => {
@@ -50,8 +52,9 @@ export const CommandBar = () => {
         <Dropdown trigger={"🎨"} title="布局和视图选项"><ViewSwitcher /></Dropdown>
         {/* 更多 */}
         <Dropdown trigger={"..."} title="查看更多"><MoreOptions /></Dropdown>
-        
+        {/* TODO: 通过接入API Key 接入主流GPT */}
         <button className="cmd-btn" title="GPT">📋</button>
+        {/* TODO: 后期接入实际文件 */}
         <button className="cmd-btn" title="显示或隐藏详细信息窗格">📋</button>
       </div>
     </div>

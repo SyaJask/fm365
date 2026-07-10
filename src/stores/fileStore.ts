@@ -5,7 +5,7 @@ import { root as rootData, getFilesByPath, type FileNode } from "../data/fileTre
 
 type ClipboardEntry = {
   operation: "cut" | "copy";
-  fileName: string;
+  fileNames: string[];
   sourcePath: string;
 } | null;
 
@@ -173,26 +173,39 @@ class FileStore {
     return true;
   }
 
-  renameFile(oldName: string, newName: string): boolean {
+  renameFiles(oldName: string, newName: string): boolean {
     const parent = findNodeByPath(this.tree, this.currentPath);
     if (!parent?.children) return false;
 
     // 重命名检查
-    if (parent.children.some((c) => c.name === newName)) {
-      return false;
+    if (parent.children.some((c) => c.name === newName)) return false;
+    
+    const names = this.selectedPaths.get(this.currentPath);
+    if (!names || names.size <= 1) {
+      const idx = parent.children.findIndex((c) => c.name === oldName);
+      if (idx === -1) return false;
+      // 新数组引用
+      parent.children = [
+        ...parent.children.slice(0, idx),
+        { ...parent.children[idx], name: newName },
+        ...parent.children.slice(idx + 1),
+      ];
+    } else {
+      // 多选 - 批量重命名
+      const base = newName.replace(/\.[^.]+$/, "");
+      const ext = newName.includes(".") ? newName.slice(newName.lastIndexOf(".")) : "";
+      const sorted = [...names].sort((a, b) => a.localeCompare(b));
+      let counter = 1;
+      for (const fileName of sorted) {
+        // 找到当前索引(可能因为前置重命名而偏移)
+        const idx = parent.children.findIndex((c) => c.name === fileName);
+        if (idx === -1) continue;
+        const numberName = `${base} (${counter})${ext}`;
+        counter++;
+        parent.children[idx] = { ...parent.children[idx], name: numberName };
+      }
+      parent.children = [...parent.children];
     }
-
-    const idx = parent.children.findIndex((c) => c.name === oldName);
-    if (idx === -1) return false;
-
-    const node = parent.children[idx];
-
-    // 新数组引用
-    parent.children = [
-      ...parent.children.slice(0, idx),
-      { ...node, name: newName },
-      ...parent.children.slice(idx + 1),
-    ];
     this.notify();
     return true;
   }
@@ -201,20 +214,22 @@ class FileStore {
   clipboard: ClipboardEntry = null;
 
   // 剪切
-  cut(fileName: string): boolean {
+  cut(fileNames: string[]): boolean {
+    if (fileNames.length === 0) return false;
     this.clipboard = {
       operation: "cut",
-      fileName,
+      fileNames,
       sourcePath: this.currentPath
     };
     return true;  // 不notify, 下次cut/copy 会覆盖
   }
 
   // 复制
-  copy(fileName: string): boolean {
+  copy(fileNames: string[]): boolean {
+    if (fileNames.length === 0) return false;
     this.clipboard = {
       operation: "copy",
-      fileName,
+      fileNames,
       sourcePath: this.currentPath
     };
     return true;
@@ -224,47 +239,46 @@ class FileStore {
   paste(): boolean {
     if (!this.clipboard) return false;
 
-    const { operation, fileName, sourcePath } = this.clipboard;
+    const { operation, fileNames, sourcePath } = this.clipboard;
     const src = findNodeByPath(this.tree, sourcePath);
     if (!src?.children) return false;
 
-    const srcIdx = src.children.findIndex((c) => c.name === fileName);
-    if (srcIdx === -1) return false;
-
-    const node = src.children[srcIdx];
     const dst = findNodeByPath(this.tree, this.currentPath);
     if (!dst?.children) return false;
 
-    // 粘贴到当前目录, 避免与同目录下自己粘贴到同一目录
-    if (sourcePath === this.currentPath && operation === "copy") {
-      // 同目录复制 -> 重命名
-      const base = node.name.replace(/\.[^.]+$/, "");
-      const ext = node.ext ?? "";
-      let copyName = `${base} - 副本${ext}`;
-      let counter = 2;
-      while (dst.children!.some((c) => c.name === copyName)) {
-        copyName = `${base} - 副本 (${counter})${ext}`;
-        counter++;
-      }
-      const newNode: FileNode = { ...node, name: copyName };
-      if (node.children) newNode.children = [...node.children];
-      dst.children = [...dst.children, newNode];
-    } else {
-      // 不同目录, 或cut -> 先粘过去
-      if (dst.children!.some((c) => c.name === node.name)) return false;
+    for (const fileName of fileNames) {
+      const srcIdx = src.children.findIndex((c) => c.name === fileName);
+      if (srcIdx === -1) continue;
+      const node = src.children[srcIdx];
+      // 粘贴到当前目录, 避免与同目录下自己粘贴到同一目录
+      if (sourcePath === this.currentPath && operation === "copy") {
+        // 同目录复制 -> 重命名
+        const base = node.name.replace(/\.[^.]+$/, "");
+        const ext = node.ext ?? "";
+        let copyName = `${base} - 副本${ext}`;
+        let counter = 2;
+        while (dst.children!.some((c) => c.name === copyName)) {
+          copyName = `${base} - 副本 (${counter})${ext}`;
+          counter++;
+        }
+        const newNode: FileNode = { ...node, name: copyName };
+        if (node.children) newNode.children = [...node.children];
+        dst.children = [...dst.children, newNode];
+      } else {
+        // 不同目录, 或cut -> 先粘过去
+        if (dst.children!.some((c) => c.name === node.name)) continue;
 
-      const newNode: FileNode = { ...node };
-      if (node.children) newNode.children = [...node.children];
-      dst.children = [...dst.children, newNode];
-
-      // cut 要从源删除
-      if (operation === "cut") {
-        src.children = [
-          ...src.children.slice(0, srcIdx),
-          ...src.children.slice(srcIdx + 1),
-        ];
-        this.clipboard = null;
+        const newNode: FileNode = { ...node };
+        if (node.children) newNode.children = [...node.children];
+        dst.children = [...dst.children, newNode];
+        }
       }
+
+    // cut 要从源删除
+    if (operation === "cut") {
+      const names = new Set(fileNames);
+      src.children = src.children.filter((c) => !names.has(c.name));
+      this.clipboard = null;
     }
 
     this.notify();

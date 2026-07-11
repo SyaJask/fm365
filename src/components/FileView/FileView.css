@@ -4,6 +4,10 @@
   text-align: left;
 }
 
+.file-view:focus {
+  outline: none;
+}
+
 .view-thumbnails {
   display: grid;
   grid-template-columns: repeat(auto-fill, 80px);
@@ -97,3 +101,4 @@
   background: var(--elevated);
   outline: none;
 }
+

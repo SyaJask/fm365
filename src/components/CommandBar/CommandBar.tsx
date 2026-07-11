@@ -1,13 +1,16 @@
 // CommandBar.tsx
-// 用途: 命令栏容器, 包含操作按钮和视图切换器; 
+// 用途: 命令栏容器, 包含操作按钮和视图切换器;
 import "./CommandBar.css";
-import { useFileStore, fileStore } from "../../stores";
+import { fileStore } from "../../stores";
+import { useSelectionStore, deselectAll } from "../../stores";
+import { useClipboardStore, cut, copy, paste } from "../../stores";
+import { setRenaming } from "../../stores";
 import { NewOptions, SortOptions, MoreOptions, ViewSwitcher, Dropdown } from ".";
 
 // 命令栏按钮组件, 包含新建、剪切、复制、粘贴、重命名等操作按钮;
 export const CommandBar = () => {
-  const { selectedFiles, clipboard } = useFileStore();
-  const firstSelected = selectedFiles[0] ?? null;
+  const { selectedFiles } = useSelectionStore();
+  const { clipboard } = useClipboardStore();
   const lastSelected = selectedFiles[selectedFiles.length - 1] ?? null;
 
   return (
@@ -18,19 +21,19 @@ export const CommandBar = () => {
 
         <button className="cmd-btn" title="剪切"
           disabled={selectedFiles.length === 0}
-          onClick={() => selectedFiles.length > 0 && fileStore.cut(selectedFiles.map((f) => f.name))}
+          onClick={() => selectedFiles.length > 0 && cut(selectedFiles.map((f) => f.name))}
         >✂️</button>
         <button className="cmd-btn" title="复制"
           disabled={selectedFiles.length === 0}
-          onClick={() => selectedFiles.length > 0 && fileStore.copy(selectedFiles.map((f) => f.name))}
+          onClick={() => selectedFiles.length > 0 && copy(selectedFiles.map((f) => f.name))}
         >📋</button>
         <button className="cmd-btn" title="粘贴"
           disabled={!clipboard}
-          onClick={() => fileStore.paste()}
+          onClick={() => paste()}
         >📄</button>
         <button className="cmd-btn" title="重命名"
           disabled={selectedFiles.length === 0} onClick={() =>
-            lastSelected && fileStore.setRenaming(lastSelected.name)
+            lastSelected && setRenaming(lastSelected.name)
           }
         >✏️</button>
         {/* TODO: 分享文件链接 */}
@@ -41,7 +44,7 @@ export const CommandBar = () => {
               for (const f of selectedFiles) {
                 fileStore.deleteFile(f.name);
               }
-              fileStore.deselectAll();
+              deselectAll();
             }
           }}
         >🗑️</button>

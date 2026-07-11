@@ -2,7 +2,10 @@
 // 用途: 左侧导航窗口, 显示文件夹树结构, 支持展开/折叠;
 import "./FolderTree.css";
 import { getFileIcon } from "../../utils/icon";
-import { useFileStore, useTabStore, tabStore, fileStore } from "../../stores";
+import { useFileStore, useTabStore, tabStore } from "../../stores";
+import { useViewStore } from "../../stores";
+import { useSelectionStore } from "../../stores";
+import { toggleExpanded } from "../../stores";
 import { type FileNode } from "../../data/fileTree";
 
 export const FolderTree = () => {
@@ -24,7 +27,8 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
     ? node.name
     : parentPath + "/" + node.name;
   const { activeId } = useTabStore();
-  const { expandedPaths, currentPath: activePath } = useFileStore();
+  const { currentPath: activePath } = useFileStore();
+  const { expandedPaths } = useViewStore();
   const expanded = expandedPaths.has(currentPath);
   const isActive = currentPath == activePath;
   const folders = (node.children ?? []).filter((c) => c.type === "folder");
@@ -35,7 +39,7 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
         <span className={`tree-arrow ${expanded ? "expanded" : ""}`}
           onClick={(e) => {
             e.stopPropagation();
-            fileStore.toggleExpanded(currentPath);
+            toggleExpanded(currentPath);
           }}
         >
           {folders.length > 0 ? "▸" : "" }
@@ -62,7 +66,7 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
 
 // 右侧详细信息窗格, 显示选中文件的属性和 AI 助手
 export const DetailPane = () => {
-  const { selectedFiles } = useFileStore();
+  const { selectedFiles } = useSelectionStore();
 
   return (
     <div className="detail-pane">

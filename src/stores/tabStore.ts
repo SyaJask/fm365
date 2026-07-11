@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import type { Tab } from "../types/Tab";
 import { fileStore } from "./fileStore";
+import { expandToPath } from "./viewStore";
 
 class TabStore {
   tabs: Tab[] = [];
@@ -110,7 +111,7 @@ class TabStore {
     )
     this.notify();
     fileStore.setCurrentPath(path);
-    fileStore.expandToPath(path);
+    expandToPath(path);
   };
 
   goBack(id: string) {
@@ -123,7 +124,7 @@ class TabStore {
     );
     this.notify();
     fileStore.setCurrentPath(path);
-    fileStore.expandToPath(path);
+    expandToPath(path);
   };
 
   goForward(id: string) {
@@ -136,7 +137,7 @@ class TabStore {
     );
     this.notify();
     fileStore.setCurrentPath(path);
-    fileStore.expandToPath(path);
+    expandToPath(path);
   };
 
   goUp(id: string) {

@@ -5,9 +5,14 @@ import "./FileView.css";
 import { getFileIcon } from "../../utils/icon";
 import { useTabStore, tabStore } from "../../stores";
 import { useFileStore, fileStore } from "../../stores";
+import { useViewStore, setRenaming } from "../../stores";
+import { useSelectionStore, selectFile, selectAll, deselectAll, getSelectedNames } from "../../stores";
+import { cut, copy, paste } from "../../stores";
 
 export const FileView = () => {
-  const { files, selectedFiles, currentPath, viewMode, sortOrder, renaming } = useFileStore();
+  const { files, currentPath } = useFileStore();
+  const { viewMode, sortOrder, renaming } = useViewStore();
+  const { selectedFiles } = useSelectionStore();
   const { activeId, searchQuery } = useTabStore();
 
   const filtered: typeof files = files.filter((f) =>
@@ -15,21 +20,50 @@ export const FileView = () => {
   );
   const sorted = [...filtered].sort((a, b) => {
     const dir = sortOrder === "asc" ? 1 : -1;
-    // 文件夹始终排在前面
     if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
     return a.name.localeCompare(b.name) * dir;
   });
-  
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (renaming) return;
+    const ctrl = e.ctrlKey || e.metaKey;
+    const sel = selectedFiles;
+
+    if (e.key === "Delete") {
+      e.preventDefault();
+      if (sel.length === 0) return;
+      for (const f of sel) fileStore.deleteFile(f.name);
+      deselectAll();
+    } else if (ctrl && e.key === "c") {
+      e.preventDefault();
+      if (sel.length > 0) copy(sel.map((f) => f.name));
+    } else if (ctrl && e.key === "x") {
+      e.preventDefault();
+      if (sel.length > 0) cut(sel.map((f) => f.name));
+    } else if (ctrl && e.key === "v") {
+      e.preventDefault();
+      paste();
+    } else if (ctrl && e.key === "a") {
+      e.preventDefault();
+      selectAll();
+    } else if (ctrl && e.key === "z") {
+      e.preventDefault();
+      // TODO:undo - 暂无历史栈
+    }
+  };
+
   return (
-    <div className={`file-view view-${viewMode}`}>
+    <div className={`file-view view-${viewMode}`}
+      tabIndex={0} onKeyDown={handleKeyDown}
+    >
       {sorted.map((file) => (
         <div key={file.name}
           className={`file-item ${selectedFiles.some((f) => f.name === file.name) ? "selected" : ""}`}
-          onClick={() => fileStore.selectFile(file.name)}
+          onClick={() => selectFile(file.name)}
           onDoubleClick={() => {
             if (file.type === "folder" && activeId) {
               const newPath = currentPath.replace(/\/+$/, "") + "/" + file.name;
-              fileStore.deselectAll();
+              deselectAll();
               tabStore.navigateTo(activeId, newPath);
             };
           }}
@@ -42,23 +76,23 @@ export const FileView = () => {
               autoFocus onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   const input = e.currentTarget;
-                  const newName  = input.value.trim();
+                  const newName = input.value.trim();
                   if (newName && newName !== file.name) {
-                    fileStore.renameFiles(file.name, newName);
+                    fileStore.renameFiles(file.name, newName, getSelectedNames(fileStore.currentPath));
                   }
-                  fileStore.deselectAll();
-                  fileStore.setRenaming(null);
+                  deselectAll();
+                  setRenaming(null);
                 } else if (e.key === "Escape") {
-                  fileStore.setRenaming(null);
+                  setRenaming(null);
                 }
               }}
               onBlur={(e) => {
                 const newName = e.currentTarget.value.trim();
                 if (newName && newName !== file.name) {
-                  fileStore.renameFiles(file.name, newName);
+                  fileStore.renameFiles(file.name, newName, getSelectedNames(fileStore.currentPath));
                 }
-                fileStore.deselectAll();
-                fileStore.setRenaming(null);
+                deselectAll();
+                setRenaming(null);
               }}
             />
           ) : (

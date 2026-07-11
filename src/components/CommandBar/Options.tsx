@@ -2,7 +2,9 @@
 // 用途: ;
 import { useState, useRef, useEffect } from "react";
 import "./Options.css";
-import { useFileStore, fileStore } from "../../stores";
+import { fileStore } from "../../stores";
+import { useViewStore, setSortMethod } from "../../stores";
+import { selectAll, invertSelection, deselectAll } from "../../stores";
 
 type SortBy = "name" | "date" | "type" | "size";
 
@@ -38,26 +40,26 @@ export const NewOptions = () => {
 
 // 排序方式下拉内容, 嵌入 Dropdown 使用;
 export const SortOptions = () => {
-  const { sortBy, sortOrder } = useFileStore();
+  const { sortBy, sortOrder } = useViewStore();
 
   return (
     <>
       {options.map((opt) => (
         <button key={opt.value}
           className={`dropdown-item ${sortBy === opt.value ? "active" : ""}`}
-          onClick={() => fileStore.setSortMethod(opt.value)}
+          onClick={() => setSortMethod(opt.value)}
         >
           {opt.label}
         </button>
       ))}
       <div className="dropdown-sep" />
       <button className={`dropdown-item ${sortOrder === "asc" ? "active" : ""}`}
-        onClick={() => fileStore.setSortMethod(sortBy, "asc")}
+        onClick={() => setSortMethod(sortBy, "asc")}
       >
         递增
       </button>
       <button className={`dropdown-item ${sortOrder === "desc" ? "active" : ""}`}
-        onClick={() => fileStore.setSortMethod(sortBy, "desc")}
+        onClick={() => setSortMethod(sortBy, "desc")}
       >
         递减
       </button>
@@ -70,13 +72,13 @@ export const MoreOptions = () => {
   return (
     <>
       <button className="dropdown-item"
-        onClick={() => fileStore.selectAll()}
+        onClick={() => selectAll()}
       >全选</button>
       <button className="dropdown-item"
-        onClick={() => fileStore.invertSelection()}
+        onClick={() => invertSelection()}
       >反转选择</button>
       <button className="dropdown-item"
-        onClick={() => fileStore.deselectAll()}
+        onClick={() => deselectAll()}
       >全不选</button>
       <div className="dropdown-sep" />
       {/* TODO: 考虑挂载、卸载系统盘符 */}

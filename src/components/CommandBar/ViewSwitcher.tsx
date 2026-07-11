@@ -1,7 +1,7 @@
 // ViewSwitcher.tsx
 // 用途: 视图切换下拉内容, 嵌入 Dropdown 使用;
 import "./ViewSwitcher.css";
-import { useFileStore, fileStore } from "../../stores";
+import { useViewStore, setViewMode } from "../../stores";
 
 type ViewMode = "list" | "thumbnails" | "details";
 
@@ -12,14 +12,14 @@ const views: { mode: ViewMode; icon: string; label: string }[] = [
 ];
 
 export const ViewSwitcher = () => {
-  const { viewMode } = useFileStore();
+  const { viewMode } = useViewStore();
 
   return (
     <>
       {views.map((v) => (
         <button key={v.mode}
           className={`dropdown-item ${viewMode === v.mode ? "active" : ""}`}
-          onClick={() => fileStore.setViewMode(v.mode)}
+          onClick={() => setViewMode(v.mode)}
         >
           <span className="dropdown-item-icon">{v.icon}</span>
           <span>{v.label}</span>

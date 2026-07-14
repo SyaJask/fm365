@@ -46,7 +46,9 @@ export const FileView = () => {
     } else if (ctrl && e.key === "a") {
       e.preventDefault();
       selectAll();
-    } else if (ctrl && e.key === "z") {
+    } else if (e.key === "F5") {
+      e.preventDefault();
+      fileStore.refresh();
       e.preventDefault();
       // TODO:undo - 暂无历史栈
     }
@@ -59,7 +61,10 @@ export const FileView = () => {
       {sorted.map((file) => (
         <div key={file.name}
           className={`file-item ${selectedFiles.some((f) => f.name === file.name) ? "selected" : ""}`}
-          onClick={() => selectFile(file.name)}
+          onClick={(e) => {
+            if (!e.ctrlKey && !e.metaKey) deselectAll();
+            selectFile(file.name);
+          }}
           onDoubleClick={() => {
             if (file.type === "folder" && activeId) {
               const newPath = currentPath.replace(/\/+$/, "") + "/" + file.name;

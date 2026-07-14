@@ -18,6 +18,7 @@ class TabStore {
       activeId: this.activeId,
       canGoBack: this.activeId ? this.canGoBack(this.activeId) : false,
       canGoForward: this.activeId ? this.canGoForward(this.activeId) : false,
+      canGoUp: this.activeId ? this.canGoUp(this.activeId) : false,
       searchQuery: this.searchQuery,
     };
     this.listeners.forEach((fn) => fn());
@@ -28,6 +29,7 @@ class TabStore {
     activeId: string | null;
     canGoBack: boolean;
     canGoForward: boolean;
+    canGoUp: boolean;
     searchQuery: string;
   } | null = null;
 
@@ -144,12 +146,9 @@ class TabStore {
     const tab = this.tabs.find((t) => t.id === id);
     if (!tab) return;
     const path = tab.path.replace(/\/+$/, "");
-    const parent = path.substring(0, path.lastIndexOf("/"));
-    if (!parent || parent === "D:") {
-      this.navigateTo(id, "D:");
-    } else if (parent.startsWith("D:")) {
-      this.navigateTo(id, parent);
-    };
+    const lastSlash = path.lastIndexOf("/");
+    if (lastSlash < 0) return; // 已在根 "D:", 无上级, 避免重复入栈
+    this.navigateTo(id, path.substring(0, lastSlash));
   };
 
   canGoBack(id: string): boolean {
@@ -160,6 +159,12 @@ class TabStore {
   canGoForward(id: string): boolean {
     const h = this.histories.get(id);
     return h ? h.index < h.stack.length - 1 : false;
+  };
+
+  canGoUp(id: string): boolean {
+    const tab = this.tabs.find((t) => t.id === id);
+    if (!tab) return false;
+    return tab.path.replace(/\/+$/, "").lastIndexOf("/") >= 0;
   };
   
   setSearchQuery(query: string) {

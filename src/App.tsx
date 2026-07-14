@@ -1,6 +1,7 @@
 // App.tsx
 // 用途: ;
 import './App.css';
+import { useViewStore } from "./stores";
 import { TitleBar } from './components/TitleBar';
 import { NavigationBar } from './components/NavigationBar';
 import { CommandBar } from './components/CommandBar';
@@ -9,6 +10,8 @@ import { FileView } from './components/FileView';
 import { StatusBar } from './components/StatusBar';
 
 function App() {
+  const { showDetailPane } = useViewStore();
+
   return (
     <>
       <div className="explorer-window">
@@ -20,7 +23,7 @@ function App() {
           <div className="content-area">
             <FileView />
           </div>
-          <DetailPane />
+          {showDetailPane && <DetailPane />}
         </div>
         <StatusBar />
       </div>

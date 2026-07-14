@@ -33,6 +33,20 @@
   color: var(--text-primary);
 }
 
+.nav-btn:active:not(:disabled) {
+  background: rgba(79, 70, 229, 0.12);
+  transform: scale(0.94);
+}
+
+.nav-btn.spinning {
+  animation: spin 0.4s ease;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .nav-btn:disabled {
   opacity: 0.3;
   cursor: default;
@@ -44,6 +58,11 @@
   cursor: pointer;
   font-size: var(--fs-body);
   color: var(--text-muted);
+}
+
+.breadcrumb-segment.current {
+  cursor: default;
+  color: var(--text-primary);
 }
 
 .breadcrumb-segment:hover {
@@ -81,4 +100,31 @@
 
 .search-input::placeholder {
   color: var(--text-muted);
+}
+
+/* 搜索框内的按钮复用 CommandBar 的 cmd-btn 基础形态 */
+.search-box .cmd-btn {
+  height: 24px;
+  min-width: 24px;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.search-box .cmd-btn:hover {
+  background: var(--hover);
+  color: var(--text-primary);
+}
+
+.search-box .cmd-btn:active {
+  background: rgba(79, 70, 229, 0.12);
+  transform: scale(0.92);
 }

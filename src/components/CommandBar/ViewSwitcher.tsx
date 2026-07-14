@@ -2,8 +2,7 @@
 // 用途: 视图切换下拉内容, 嵌入 Dropdown 使用;
 import "./ViewSwitcher.css";
 import { useViewStore, setViewMode } from "../../stores";
-
-type ViewMode = "list" | "thumbnails" | "details";
+import type { ViewMode } from "../../stores/viewStore";
 
 const views: { mode: ViewMode; icon: string; label: string }[] = [
   { mode: "list", icon: "☰", label: "列表" },

@@ -2,8 +2,8 @@
 // 用途: 视图/排序/展开/重命名等 UI 状态
 import { useSyncExternalStore } from "react";
 
-type ViewMode = "list" | "thumbnails" | "details";
-type SortBy = "name" | "date" | "type" | "size";
+export type ViewMode = "list" | "thumbnails" | "details";
+export type SortBy = "name" | "date" | "type" | "size";
 type SortOrder = "asc" | "desc";
 
 interface ViewSnapshot {
@@ -12,6 +12,7 @@ interface ViewSnapshot {
   sortOrder: SortOrder;
   expandedPaths: ReadonlySet<string>;
   renaming: string | null;
+  showDetailPane: boolean;
 }
 
 let viewMode: ViewMode = "list";
@@ -19,6 +20,7 @@ let sortBy: SortBy = "name";
 let sortOrder: SortOrder = "asc";
 let expandedPaths = new Set<string>(["D:", "D:/ai2all", "D:/ai2all/fm365"]);
 let renaming: string | null = null;
+let showDetailPane = true;
 
 let snapshot: ViewSnapshot | null = null;
 const listeners = new Set<() => void>();
@@ -26,7 +28,7 @@ const listeners = new Set<() => void>();
 function notify() { snapshot = null; listeners.forEach((fn) => fn()); }
 
 export function getSnapshot(): ViewSnapshot {
-  if (!snapshot) snapshot = { viewMode, sortBy, sortOrder, expandedPaths, renaming };
+  if (!snapshot) snapshot = { viewMode, sortBy, sortOrder, expandedPaths, renaming, showDetailPane };
   return snapshot;
 }
 
@@ -36,6 +38,8 @@ export function setSortMethod(by: SortBy, order?: SortOrder) {
   notify();
 }
 export function setRenaming(fileName: string | null) { renaming = fileName; notify(); }
+
+export function toggleDetailPane() { showDetailPane = !showDetailPane; notify(); }
 
 export function toggleExpanded(path: string) {
   const next = new Set(expandedPaths);

@@ -49,12 +49,34 @@ export function paste(): boolean {
   const dst = findNodeByPath(fileStore.tree, fileStore.currentPath);
   if (!dst?.children) return false;
 
+  const skippedFolders: string[] = [];
+  for (const fileName of fileNames) {
+    const nodePath = sourcePath + "/" + fileName;
+    const item = src.children.find((c) => c.name === fileName);
+    if (item?.type === "folder" &&
+      (fileStore.currentPath === nodePath || fileStore.currentPath.startsWith(nodePath + "/"))) {
+      skippedFolders.push(fileName);
+    }
+  }
+
+  if (skippedFolders.length > 0) {
+    const ok = window.confirm(
+      `以下文件夹不能移入自身子树内, 将被跳过:\n${skippedFolders.map((f) => `• ${f}`).join("\n")}\n\n是否继续粘贴其余项目?`
+    );
+    if (!ok) return false;
+  }
+
+  const pasted = new Set<string>();
   for (const fileName of fileNames) {
     const srcIdx = src.children.findIndex((c) => c.name === fileName);
     if (srcIdx === -1) continue;
     const node = src.children[srcIdx];
 
-    if (sourcePath === fileStore.currentPath && operation === "copy") {
+    // 跳过自身子树内的文件夹
+    if (skippedFolders.includes(fileName)) continue;
+
+    if (sourcePath === fileStore.currentPath) {
+      if (operation === "cut") continue;
       const base = node.name.replace(/\.[^.]+$/, "");
       const ext = node.ext ?? "";
       let copyName = `${base} - 副本${ext}`;
@@ -71,12 +93,14 @@ export function paste(): boolean {
       const newNode: FileNode = { ...node };
       if (node.children) newNode.children = [...node.children];
       dst.children = [...dst.children, newNode];
+      pasted.add(fileName);
     }
   }
 
-  if (operation === "cut") {
-    const names = new Set(fileNames);
-    src.children = src.children.filter((c) => !names.has(c.name));
+  if (operation === "cut" && sourcePath !== fileStore.currentPath) {
+    src.children = src.children.filter((c) => !pasted.has(c.name));
+    clipboard = null;
+  } else if (operation === "cut") {
     clipboard = null;
   }
 

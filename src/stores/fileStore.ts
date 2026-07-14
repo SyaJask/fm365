@@ -54,6 +54,12 @@ class FileStore {
 
   setCurrentPath(path: string) { this.currentPath = path; this.notify(); }
 
+  /** Mock 阶段：重置内存树为初始数据，保留当前路径 */
+  refresh() {
+    this.tree = structuredClone(rootData);
+    this.notify();
+  }
+
   deleteFile(fileName: string): boolean {
     const parent = findNodeByPath(this.tree, this.currentPath);
     if (!parent?.children) return false;
@@ -66,16 +72,27 @@ class FileStore {
   createFolder(name: string): boolean {
     const parent = findNodeByPath(this.tree, this.currentPath);
     if (!parent?.children) return false;
-    if (parent.children.some((c) => c.name === name && c.type === "folder")) return false;
-    parent.children = [...parent.children, { name, type: "folder" }];
+    let finalName = name;
+    let counter = 2;
+    while (parent.children.some((c) => c.name === finalName && c.type === "folder")) {
+      finalName = `${name} (${counter})`;
+      counter++;
+    }
+    parent.children = [...parent.children, { name: finalName, type: "folder" }];
     this.notify(); return true;
   }
 
   createFile(name: string, ext: string): boolean {
     const parent = findNodeByPath(this.tree, this.currentPath);
     if (!parent?.children) return false;
-    if (parent.children.some((c) => c.name === name)) return false;
-    parent.children = [...parent.children, { name, type: "file", ext }];
+    const base = name.replace(/\.[^.]+$/, "");
+    let finalName = name;
+    let counter = 2;
+    while (parent.children.some((c) => c.name === finalName)) {
+      finalName = `${base} (${counter})${ext}`;
+      counter++;
+    }
+    parent.children = [...parent.children, { name: finalName, type: "file", ext }];
     this.notify(); return true;
   }
 

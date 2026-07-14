@@ -1,12 +1,14 @@
 // NavigationBar.tsx
+import { useRef, useState } from 'react';
 import './NavigationBar.css';
-import { tabStore, useTabStore } from '../../stores';
-import { type Tab } from '../../types'
+import { tabStore, useTabStore, fileStore } from '../../stores';
+import { type Tab } from '../../types';
 
 interface NavigationButtonsProps {
   activeId: string | null;
   canGoBack: boolean;
   canGoForward: boolean;
+  canGoUp: boolean;
 }
 
 interface BreadcrumbBarProps {
@@ -20,8 +22,17 @@ interface SearchBoxProps {
 
 // 导航栏按钮组件, 包含前进、后退、刷新等功能;
 const NavigationButtons = (
-  { activeId, canGoBack, canGoForward }: NavigationButtonsProps
+  { activeId, canGoBack, canGoForward, canGoUp }: NavigationButtonsProps
 ) => {
+  const [spinning, setSpinning] = useState(false);
+
+  const handleRefresh = () => {
+    if (spinning) return;
+    setSpinning(true);
+    fileStore.refresh();
+    setTimeout(() => setSpinning(false), 400);
+  };
+
   return (
     <div className="nav-buttons">
       <button className="nav-btn" title="后退" disabled={!canGoBack}
@@ -34,13 +45,14 @@ const NavigationButtons = (
       >
         →
       </button>
-      <button className="nav-btn" title="上翻(Alt + 向上键)"
+      <button className="nav-btn" title="上翻(Alt + 向上键)" disabled={!canGoUp}
         onClick={() => activeId && tabStore.goUp(activeId)}
       >
         ↑
       </button>
-      <button className="nav-btn" title="刷新(F5)"
-        onClick={() => { /* mock 数据实际操作, 强制触发一次渲染 */}}
+      {/* TODO: 刷新时应与Windows 界面刷新交互效果类似 */}
+      <button className={`nav-btn${spinning ? " spinning" : ""}`} title="刷新(F5)"
+        onClick={handleRefresh}
       >
         ↻
       </button>
@@ -49,6 +61,8 @@ const NavigationButtons = (
 };
 
 // 面包屑导航栏组件, 用于显示当前路径和导航到上级目录;
+// TODO: 需要改成类似Windows 的交互模式, 输入框输入路径可以访问对应文件夹;
+// 输入cmd 会显示cli
 const BreadcrumbBar = ({ tabs, activeId }: BreadcrumbBarProps) => {
   const activeTab = tabs.find((t) => t.id === activeId);
   const path = activeTab?.path ?? "";
@@ -66,10 +80,12 @@ const BreadcrumbBar = ({ tabs, activeId }: BreadcrumbBarProps) => {
   return (
     <div className="breadcrumb-bar">
       {segments.map((seg, i) => (
-        <span key={i}>
+        <span key={seg.fullPath}>
           {i > 0 && <span className="breadcrumb-sep">›</span>}
-          <span className="breadcrumb-segment" onClick={() =>
-            activeTab && tabStore.navigateTo(activeTab.id, seg.fullPath)}
+          <span
+            className={`breadcrumb-segment${i === segments.length - 1 ? " current" : ""}`}
+            onClick={i < segments.length - 1 ? () =>
+              activeTab && tabStore.navigateTo(activeTab.id, seg.fullPath) : undefined}
           >
             {seg.name}
           </span>
@@ -81,9 +97,12 @@ const BreadcrumbBar = ({ tabs, activeId }: BreadcrumbBarProps) => {
 
 // 搜索框组件, 用于在文件资源管理器中进行搜索操作;
 const SearchBox = ({ searchQuery }: SearchBoxProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div className="search-box">
-      <input type="text" placeholder="搜索"
+      {/* TODO: 应该点击搜索后再展示搜索结果 */}
+      <input ref={inputRef} type="text" placeholder="搜索"
         className="search-input" value={searchQuery}
         onChange={(e) => tabStore.setSearchQuery(e.target.value)}
       />
@@ -94,19 +113,23 @@ const SearchBox = ({ searchQuery }: SearchBoxProps) => {
           ✕
         </button>
       )}
-        <button className="cmd-btn" title="搜索">🔍</button>
-      </div>
+      <button className="cmd-btn" title="搜索"
+        onClick={() => inputRef.current?.focus()}
+      >
+        🔍
+      </button>
+    </div>
   );
 };
 
 // 导航栏组件, 包含导航按钮和地址栏等功能;
 export const NavigationBar = () => {
-  const { activeId, canGoBack, canGoForward, tabs, searchQuery } = useTabStore();
+  const { activeId, canGoBack, canGoForward, canGoUp, tabs, searchQuery } = useTabStore();
 
   return (
     <div className="navigation-bar">
       <NavigationButtons
-        activeId={activeId} canGoBack={canGoBack} canGoForward={canGoForward} />
+        activeId={activeId} canGoBack={canGoBack} canGoForward={canGoForward} canGoUp={canGoUp} />
       <BreadcrumbBar tabs={tabs} activeId={activeId} />
       <SearchBox searchQuery={searchQuery} />
     </div>

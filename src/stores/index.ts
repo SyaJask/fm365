@@ -10,6 +10,7 @@ export {
   setRenaming,
   toggleExpanded,
   expandToPath,
+  toggleDetailPane,
 } from "./viewStore";
 
 // ---- 选中 ----

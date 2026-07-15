@@ -27,28 +27,28 @@ export const FileView = () => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (renaming) return;
     const ctrl = e.ctrlKey || e.metaKey;
-    const sel = selectedFiles;
 
-    if (e.key === "Delete") {
+    const files = selectedFiles;
+    const shortcuts: Record<string, () => void> = {
+      Delete: () => {
+        if (files.length === 0) return;
+        for (const f of files) fileStore.deleteFile(f.name);
+        deselectAll();
+      },
+      c: () => { if (files.length > 0) copy(files.map((f) => f.name)); },
+      x: () => { if (files.length > 0) cut(files.map((f) => f.name)); },
+      v: () => paste(),
+      a: () => selectAll(),
+      F5: () => fileStore.refresh(),
+    };
+
+    const modShortcuts = new Set(["c", "x", "v", "a"]);
+    const key = e.key;
+    const handler = shortcuts[key];
+
+    if (handler && (modShortcuts.has(key) ? ctrl : true)) {
       e.preventDefault();
-      if (sel.length === 0) return;
-      for (const f of sel) fileStore.deleteFile(f.name);
-      deselectAll();
-    } else if (ctrl && e.key === "c") {
-      e.preventDefault();
-      if (sel.length > 0) copy(sel.map((f) => f.name));
-    } else if (ctrl && e.key === "x") {
-      e.preventDefault();
-      if (sel.length > 0) cut(sel.map((f) => f.name));
-    } else if (ctrl && e.key === "v") {
-      e.preventDefault();
-      paste();
-    } else if (ctrl && e.key === "a") {
-      e.preventDefault();
-      selectAll();
-    } else if (e.key === "F5") {
-      e.preventDefault();
-      fileStore.refresh();
+      handler();
     }
   };
 

@@ -18,6 +18,7 @@ export {
   useSelectionStore,
   getSelectedNames,
   selectFile,
+  selectFileAt,
   selectAll,
   invertSelection,
   deselectAll,

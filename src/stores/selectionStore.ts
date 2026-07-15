@@ -42,10 +42,14 @@ export const useSelectionStore = () =>
 /* ---------- 操作方法 ---------- */
 
 export function selectFile(fileName: string) {
-  let set = selectedPaths.get(fileStore.currentPath);
-  if (!set) { set = new Set(); selectedPaths.set(fileStore.currentPath, set); }
+  selectFileAt(fileStore.currentPath, fileName);
+}
+
+export function selectFileAt(dirPath: string, fileName: string) {
+  let set = selectedPaths.get(dirPath);
+  if (!set) { set = new Set(); selectedPaths.set(dirPath, set); }
   if (set.has(fileName)) set.delete(fileName); else set.add(fileName);
-  if (set.size === 0) selectedPaths.delete(fileStore.currentPath);
+  if (set.size === 0) selectedPaths.delete(dirPath);
   notify();
 }
 

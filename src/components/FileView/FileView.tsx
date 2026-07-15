@@ -49,8 +49,6 @@ export const FileView = () => {
     } else if (e.key === "F5") {
       e.preventDefault();
       fileStore.refresh();
-      e.preventDefault();
-      // TODO:undo - 暂无历史栈
     }
   };
 

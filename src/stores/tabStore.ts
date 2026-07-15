@@ -98,6 +98,11 @@ class TabStore {
   setActive(id: string) {
     this.tabs = this.tabs.map((t) => ({ ...t, active: t.id === id }));
     this.activeId = id;
+    const tab = this.tabs.find((t) => t.id === id);
+    if (tab) {
+      fileStore.setCurrentPath(tab.path);
+      expandToPath(tab.path);
+    }
     this.notify();
   };
 

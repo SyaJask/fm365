@@ -4,7 +4,7 @@ import "./FolderTree.css";
 import { getFileIcon } from "../../utils/icon";
 import { useFileStore, useTabStore, tabStore } from "../../stores";
 import { useViewStore } from "../../stores";
-import { useSelectionStore, selectFile, deselectAll } from "../../stores";
+import { useSelectionStore, selectFileAt, deselectAll } from "../../stores";
 import { toggleExpanded } from "../../stores";
 import { type FileNode } from "../../data/fileTree";
 
@@ -50,7 +50,7 @@ const FolderTreeNode = ({ node, depth, parentPath }: {
               deselectAll();
               activeId && tabStore.navigateTo(activeId, currentPath);
             } else {
-              selectFile(node.name);
+              selectFileAt(currentPath, node.name);
             }
           }}
         >

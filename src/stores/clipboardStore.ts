@@ -40,6 +40,28 @@ export function copy(fileNames: string[]): boolean {
   return true;
 }
 
+/** 检查并确认跳过那些目标路径在其自身子树内的文件夹。返回 false 表示用户取消。 */
+function confirmSkipSelfReferencing(
+  src: { children?: FileNode[] },
+  sourcePath: string,
+  fileNames: string[],
+): { skipped: string[]; confirmed: boolean } {
+  const skipped: string[] = [];
+  for (const f of fileNames) {
+    const nodePath = sourcePath + "/" + f;
+    const item = src.children?.find((c) => c.name === f);
+    if (item?.type === "folder" &&
+      (fileStore.currentPath === nodePath || fileStore.currentPath.startsWith(nodePath + "/"))) {
+      skipped.push(f);
+    }
+  }
+  if (skipped.length === 0) return { skipped, confirmed: true };
+  const ok = window.confirm(
+    `以下文件夹不能移入自身子树内, 将被跳过:\n${skipped.map((f) => `• ${f}`).join("\n")}\n\n是否继续粘贴其余项目?`
+  );
+  return { skipped, confirmed: ok };
+}
+
 export function paste(): boolean {
   if (!clipboard) return false;
 
@@ -49,22 +71,8 @@ export function paste(): boolean {
   const dst = findNodeByPath(fileStore.tree, fileStore.currentPath);
   if (!dst?.children) return false;
 
-  const skippedFolders: string[] = [];
-  for (const fileName of fileNames) {
-    const nodePath = sourcePath + "/" + fileName;
-    const item = src.children.find((c) => c.name === fileName);
-    if (item?.type === "folder" &&
-      (fileStore.currentPath === nodePath || fileStore.currentPath.startsWith(nodePath + "/"))) {
-      skippedFolders.push(fileName);
-    }
-  }
-
-  if (skippedFolders.length > 0) {
-    const ok = window.confirm(
-      `以下文件夹不能移入自身子树内, 将被跳过:\n${skippedFolders.map((f) => `• ${f}`).join("\n")}\n\n是否继续粘贴其余项目?`
-    );
-    if (!ok) return false;
-  }
+  const { skipped, confirmed } = confirmSkipSelfReferencing(src, sourcePath, fileNames);
+  if (!confirmed) return false;
 
   const pasted = new Set<string>();
   for (const fileName of fileNames) {
@@ -73,7 +81,7 @@ export function paste(): boolean {
     const node = src.children[srcIdx];
 
     // 跳过自身子树内的文件夹
-    if (skippedFolders.includes(fileName)) continue;
+    if (skipped.includes(fileName)) continue;
 
     if (sourcePath === fileStore.currentPath) {
       if (operation === "cut") continue;

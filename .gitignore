@@ -25,3 +25,8 @@ dist-ssr
 
 # Claude local overrides (personal preferences, not committed)
 CLAUDE.local.md
+
+# Server
+server/data.db
+server/data.db-wal
+server/data.db-shm
